@@ -597,6 +597,8 @@ select { font-size: 12px; padding: 4px 8px; border-radius: var(--radius-sm); bor
       <input type="range" id="gphase-sl" min="0" max="100" step="1" value="0" oninput="update()">
       <span id="lbl-gphase">pre-collision</span></div>
   </div>
+  <canvas id="collision-canvas" height="260" style="width:100%;height:260px;display:block;background:#030610;border-radius:8px;margin:8px 0;"></canvas>
+  <div style="display:flex;gap:8px;margin:4px 0 2px;"><button onclick="exportPNG('collision-canvas','galaxy_collision','zrazky_galaxii')" style="font-size:11px;padding:4px 12px;border-radius:99px;border:0.5px solid rgba(100,160,255,0.4);background:rgba(10,20,40,0.8);color:#8ab4ff;cursor:pointer;">⬇ Export PNG</button></div>
   <div class="metrics" id="metrics-gc"></div>
   <div class="info" data-sk="<strong>Zrážky galaxií</strong> perturbujú vlastné pohyby hviezd (proper motion), menia sa červené posuny v okrajových oblastiach a prílivové chvosty skreslujú fotometrické merania. Simulácie Illustris TNG ukazujú, že meranie vzdialenosti cez supernovy Ia môže byť v interagujúcich galaxiách skreslené o 5–15 % kvôli zvýšenej tvorbe hviezd a prachu. Mliečna cesta a M31 sa priblížia za ~4,5 mld. rokov (súčasná rýchlosť ~120 km/s). <a href=&quot;https://www.tng-project.org/&quot; target=&quot;_blank&quot;>→ IllustrisTNG</a>" data-en="<strong>Galaxy collisions</strong> perturb stellar proper motions, alter redshifts in peripheral regions, and tidal tails distort photometric measurements. Illustris TNG simulations show that Type Ia supernova distances may be biased by 5–15% in interacting galaxies due to elevated star formation and dust. The Milky Way and M31 will approach in ~4.5 Gyr (current velocity ~120 km/s). <a href=&quot;https://www.tng-project.org/&quot; target=&quot;_blank&quot;>→ IllustrisTNG</a>"><strong>Zrážky galaxií</strong> perturbujú vlastné pohyby hviezd (proper motion), menia sa červené posuny v okrajových oblastiach a prílivové chvosty skreslujú fotometrické merania. Simulácie Illustris TNG ukazujú, že meranie vzdialenosti cez supernovy Ia môže byť v interagujúcich galaxiách skreslené o 5–15 % kvôli zvýšenej tvorbe hviezd a prachu. Mliečna cesta a M31 sa priblížia za ~4,5 mld. rokov (súčasná rýchlosť ~120 km/s). <a href="https://www.tng-project.org/" target="_blank">→ IllustrisTNG</a></div>
 </div>
@@ -3244,7 +3246,34 @@ function updateGravWaves(){
     `GW150914: M1=36, M2=29 M☉, dist=410 Mpc, h_max~10⁻²¹. <a href="https://www.ligo.caltech.edu/detection" target="_blank">→ LIGO</a>`;
 }
 
-function drawGravWaveChart(m1,m2,dist,phase,hMax,fMerge){
+// ── Gravitational wave animation ──────────────────────────────────────────────
+let gwAnimId = null, gwAnimOffset = 0;
+
+function animateGravWaves() {
+  gwAnimOffset += 0.012;
+  if (gwAnimOffset > 1) gwAnimOffset = 0;
+  const cv = g('gw-canvas');
+  if (!cv || !document.getElementById('pane-gravwaves').classList.contains('active')) {
+    gwAnimId = null; return;
+  }
+  const m1    = parseFloat(g('gw-m1')?.value  || 30);
+  const m2    = parseFloat(g('gw-m2')?.value  || 25);
+  const dist  = parseFloat(g('gw-dist')?.value|| 410);
+  const phase = parseFloat(g('gw-phase')?.value|| 80) / 100;
+  const G=6.674e-11, c=3e8, Msun=1.989e30;
+  const M = m1 + m2;
+  const fMerge   = c**3 / (6*Math.sqrt(6)*Math.PI*G*M*Msun) / 1000;
+  const fMergeHz = fMerge * 1000;
+  const Mc       = Math.pow(m1*m2,3/5) / Math.pow(m1+m2,1/5);
+  const dist_m   = dist * 3.086e22;
+  const GMc      = G*Mc*Msun;
+  const f_now    = fMergeHz * (1 - phase*0.8);
+  const h        = 4/dist_m * (GMc/c**2) * Math.pow(Math.PI*f_now*GMc/c**3, 2/3);
+  drawGravWaveChart(m1, m2, dist, phase, h, fMergeHz, gwAnimOffset);
+  gwAnimId = requestAnimationFrame(animateGravWaves);
+}
+
+function drawGravWaveChart(m1,m2,dist,phase,hMax,fMerge, animOffset=0){
   const cv=g('gw-canvas'); if(!cv)return;
   const w=cv.parentElement.clientWidth; cv.width=w; cv.height=200;
   const c2=cv.getContext('2d');
@@ -3278,7 +3307,7 @@ function drawGravWaveChart(m1,m2,dist,phase,hMax,fMerge){
     const amp = hMax * Math.pow(remFrac,-1/4) / Math.pow(phase,-1/4);
     const ampScaled = Math.min(amp/hMax, 1) * ph/2 * 0.85;
     const x = pad + t*pw;
-    const y = cy + Math.sin(freq*t*50)*ampScaled;
+    const y = cy + Math.sin(freq*t*50 + animOffset*Math.PI*2)*ampScaled;
     if(i===0){ c2.moveTo(x,y); }
     else { c2.lineTo(x,y); }
   }
@@ -3877,26 +3906,43 @@ window.setTab=function(t){
   }
 
   // --- all other tabs ---
-  if(t==='gravwaves')   updateGravWaves();
-  if(t==='exoplanet')   {updateExoplanet();if(!epCanvas3AnimId)animateExoplanet();}
-  if(t==='star3d')      {update3DStar();if(!star3dAnimId)animate3DStar();}
-  if(t==='cmb')         updateCMB();
+  // ── static / one-shot updates (no animation loop) ──
+  if(t==='star3d')      { update3DStar();    if(!star3dAnimId)    animate3DStar();    }
+  if(t==='exoplanet')   { updateExoplanet(); if(!epCanvas3AnimId) animateExoplanet(); }
   if(t==='cmbps')       updateCMBPS();
   if(t==='tullyfisher') updateTF();
-  if(t==='frb')         updateFRB();
-  else if(typeof stopFRBContactAnim==='function') stopFRBContactAnim();
   if(t==='pulsar')      updatePulsar();
   if(t==='specstar')    updateSpecStar();
-  if(t==='transit')     updateTransit();
   if(t==='dm')          updateDM();
   if(t==='faberjackson')updateFJ();
   if(t==='rrlyrae')     { if(window._rrlReset)window._rrlReset(); updateRRL(); }
   if(t==='friedmann')   updateFriedmann();
   if(t==='reionization')updateReionization();
   if(t==='binary')      updateBinary();
-  if(t==='xraypulsar')  updateXrayPulsar();
-  if(t==='accretion')   updateAccretion();
   if(t==='resonance')   updateResonance();
+
+  // ── FRB: has its own stop helper ──
+  if(t==='frb') updateFRB();
+  else if(typeof stopFRBContactAnim==='function') stopFRBContactAnim();
+
+  // ── animated tabs: start the right one, cancel all others ──
+  if(t==='gravwaves') { updateGravWaves(); if(!gwAnimId) animateGravWaves(); }
+  else                { if(gwAnimId){cancelAnimationFrame(gwAnimId);gwAnimId=null;} }
+
+  if(t==='xraypulsar') { updateXrayPulsar(); if(!xpAnimId) startXrayPulsarAnim(); }
+  else                 { if(typeof xpAnimId!=='undefined'&&xpAnimId){cancelAnimationFrame(xpAnimId);xpAnimId=null;} }
+
+  if(t==='accretion') { accFrame=0; startAccretionAnim(); }
+  else                { if(typeof accAnimId!=='undefined'&&accAnimId){cancelAnimationFrame(accAnimId);accAnimId=null;} }
+
+  if(t==='transit') { updateTransit(); startTransitAnim(); }
+  else              { if(typeof transitAnimId!=='undefined'&&transitAnimId){cancelAnimationFrame(transitAnimId);transitAnimId=null;} }
+
+  if(t==='collision') { startCollisionAnim(); }
+  else                { if(typeof collisionAnimId!=='undefined'&&collisionAnimId){cancelAnimationFrame(collisionAnimId);collisionAnimId=null;} }
+
+  if(t==='cmb') { updateCMB(); startCMBAnim(); }
+  else          { if(typeof cmbAnimId!=='undefined'&&cmbAnimId){cancelAnimationFrame(cmbAnimId);cmbAnimId=null;} }
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -4844,7 +4890,60 @@ window.setTab=function(t){
     return [r,g,b];
   }
 
+// ── CMB shimmer animation ──────────────────────────────────────────────────────
+let cmbAnimId=null, cmbShimmerFrame=0, _cmbBasePixels=null;
+window.startCMBAnim=function(){
+  if(cmbAnimId)return;
+  function loop(){
+    if(!document.getElementById('pane-cmb')?.classList.contains('active')){cmbAnimId=null;return;}
+    cmbShimmerFrame++;
+    if(cmbShimmerFrame%3===0) drawCMBShimmer();
+    cmbAnimId=requestAnimationFrame(loop);
+  }
+  cmbAnimId=requestAnimationFrame(loop);
+};
+function drawCMBShimmer(){
+  const cv=document.getElementById('cmb-canvas');if(!cv)return;
+  const W=cv.width,H=cv.height;if(!W||!H)return;
+  const ctx2=cv.getContext('2d');
+  // Cache base image right after updateCMB renders it
+  if(!_cmbBasePixels||_cmbBasePixels.width!==W||_cmbBasePixels.height!==H){
+    _cmbBasePixels=ctx2.getImageData(0,0,W,H);
+    if(_cmbBasePixels.data[0]===0&&_cmbBasePixels.data[1]===0&&_cmbBasePixels.data[2]===0) {
+      _cmbBasePixels=null; return; // not rendered yet
+    }
+  }
+  const noiseAm=parseFloat(document.getElementById('cmb-noise')?.value)||5;
+  const shimmerAmp=Math.min(1,noiseAm/50)*0.10;
+  const t=cmbShimmerFrame;
+  const out=new ImageData(new Uint8ClampedArray(_cmbBasePixels.data),W,H);
+  const step=6;
+  for(let py=0;py<H;py+=step){
+    for(let px=0;px<W;px+=step){
+      const sh=shimmerAmp*(
+        Math.sin(t*0.08+px*0.028+py*0.018)*0.5+
+        Math.sin(t*0.14+px*0.016-py*0.038)*0.3+
+        Math.sin(t*0.05-px*0.022+py*0.034)*0.2
+      );
+      const dR=Math.round(sh*45),dG=Math.round(sh*25),dB=Math.round(sh*70);
+      for(let dy=0;dy<step&&py+dy<H;dy++){
+        for(let dx=0;dx<step&&px+dx<W;dx++){
+          const i=((py+dy)*W+(px+dx))*4;
+          out.data[i]  =Math.max(0,Math.min(255,_cmbBasePixels.data[i]  +dR));
+          out.data[i+1]=Math.max(0,Math.min(255,_cmbBasePixels.data[i+1]+dG));
+          out.data[i+2]=Math.max(0,Math.min(255,_cmbBasePixels.data[i+2]+dB));
+        }
+      }
+    }
+  }
+  ctx2.putImageData(out,0,0);
+}
+
   window.updateCMB = function(){
+    // Reset base-pixel cache so drawCMBShimmer always reads the freshly
+    // rendered frame — never accumulates shimmer on top of shimmer.
+    _cmbBasePixels = null;
+
     const canvas = document.getElementById('cmb-canvas');
     if(!canvas) return;
     const W = canvas.clientWidth || 600;
@@ -5809,6 +5908,18 @@ window.setTab=function(t){
     return flux_star > 0 ? (flux_star - flux_blocked)/flux_star : 1.0;
   }
 
+// Transit animation state
+let transitAnimId=null, transitFrame=0;
+function startTransitAnim(){
+  if(transitAnimId)return;
+  function loop(){
+    if(!document.getElementById('pane-transit')?.classList.contains('active')){transitAnimId=null;return;}
+    transitFrame++;
+    updateTransit();
+    transitAnimId=requestAnimationFrame(loop);
+  }
+  transitAnimId=requestAnimationFrame(loop);
+}
   window.updateTransit = function(){
     const rp_Re = parseFloat(document.getElementById('tr-rp').value)||11;
     const rs_Rs = parseFloat(document.getElementById('tr-rs').value)||1.0;
@@ -6061,61 +6172,138 @@ window.setTab=function(t){
       ctx.fillText('u₁='+u1.toFixed(2)+' u₂='+u2.toFixed(2),ML+4,MT+12);
     }
 
-    // ── GEOMETRY ─────────────────────────────────────────────
+    // ── GEOMETRY — animated planet transit ──────────────────────
     else {
-      // Top view of orbit + transit chord
+      // Animated planet moving across the star face
       const cx2=W/2, cy2=MT+ph*0.5;
-      const starR=Math.min(ph*0.28, pw*0.18);
-      const orbitA=Math.min(pw*0.42, ph*0.42);
+      const starR=Math.min(ph*0.30, pw*0.20);
+      const orbitA=Math.min(pw*0.44, ph*0.44);
       const orbitB=orbitA*Math.sin(inc_r);
-
-      // Orbit ellipse
-      ctx.strokeStyle='rgba(100,140,200,0.25)';ctx.lineWidth=1;ctx.setLineDash([3,4]);
-      ctx.beginPath();ctx.ellipse(cx2,cy2,orbitA,orbitB,0,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
-
-      // Star
-      const grad=ctx.createRadialGradient(cx2,cy2,0,cx2,cy2,starR);
-      grad.addColorStop(0,'rgba(255,230,150,0.95)');
-      grad.addColorStop(0.6,'rgba(255,180,60,0.7)');
-      grad.addColorStop(1,'rgba(255,100,20,0.0)');
-      ctx.fillStyle=grad;ctx.beginPath();ctx.arc(cx2,cy2,starR,0,Math.PI*2);ctx.fill();
-      ctx.strokeStyle='rgba(255,200,80,0.4)';ctx.lineWidth=1;
-      ctx.beginPath();ctx.arc(cx2,cy2,starR,0,Math.PI*2);ctx.stroke();
-
-      // Transit chord
-      const bPx=b*starR;
-      const chordHalf=Math.sqrt(Math.max(0,(1+k)**2*starR**2 - bPx**2));
-      ctx.strokeStyle='rgba(85,204,136,0.6)';ctx.lineWidth=1.5;
-      ctx.beginPath();ctx.moveTo(cx2-chordHalf,cy2+bPx);ctx.lineTo(cx2+chordHalf,cy2+bPx);ctx.stroke();
-
-      // Planet on transit chord at 3 positions
       const planetR2=k*starR;
-      const positions=[
-        {x:cx2-chordHalf, label:'T₁',col:'rgba(100,200,255,0.7)'},
-        {x:cx2,           label:'Stred',col:'rgba(77,184,255,0.9)'},
-        {x:cx2+chordHalf, label:'T₄',col:'rgba(100,200,255,0.7)'},
-      ];
-      positions.forEach(p=>{
-        ctx.fillStyle=p.col;
-        ctx.beginPath();ctx.arc(p.x,cy2+bPx,planetR2,0,Math.PI*2);ctx.fill();
-        ctx.strokeStyle='rgba(77,184,255,0.4)';ctx.lineWidth=0.5;
-        ctx.beginPath();ctx.arc(p.x,cy2+bPx,planetR2,0,Math.PI*2);ctx.stroke();
-        ctx.fillStyle='rgba(200,215,255,0.7)';ctx.font='9px monospace';ctx.textAlign='center';
-        ctx.fillText(p.label,p.x,cy2+bPx-planetR2-4);
-      });
+      const bPx=b*starR;
+
+      // Animate planet: transit + full orbit, period in animation frames
+      // Speed: scale so one full chord takes ~3 seconds (90 frames), rest of orbit offscreen
+      const chordHalf=Math.sqrt(Math.max(0,(1+k)**2*starR**2 - bPx**2));
+      // Full orbit in "real" units: planet at x = cx2 + cos(angle)*orbitA, y=cy2+sin*orbitB
+      // We map transitFrame so that ~90frames = transit duration
+      const transitFrames=90;
+      const totalFrames=Math.round(transitFrames*P_days*24/Math.max(T14_h,0.1)); // scale orbit
+      const tClamped=Math.max(2,Math.min(totalFrames,6000));
+      const rawPhase=(transitFrame % tClamped)/tClamped; // 0..1 orbital phase
+      // Angle: planet transits near angle=π (behind/in front of star depends on inc)
+      // At angle=3π/2: planet is "in front" at bottom of screen → transit geometry
+      const orbitalAngle=rawPhase*2*Math.PI;
+      const px=cx2+Math.cos(orbitalAngle)*orbitA;
+      const py=cy2+Math.sin(orbitalAngle)*orbitB;
+
+      // Is planet on near side (transiting)?
+      const nearSide=(Math.sin(orbitalAngle)>0);
+      // Distance from star centre in star radii (for flux calc)
+      const dxNorm=(px-cx2)/starR;
+      const dyNorm=bPx/starR; // b is constant (projected)
+      const d_norm=Math.sqrt(dxNorm*dxNorm+dyNorm*dyNorm);
+      const inTransit=nearSide&&(d_norm<1+k);
+
+      // Stellar limb-darkened disk
+      const imgD=ctx.createImageData(Math.round(starR*2+2),Math.round(starR*2+2));
+      for(let iy=0;iy<imgD.height;iy++){
+        for(let ix=0;ix<imgD.width;ix++){
+          const rx=(ix-starR)/starR, ry=(iy-starR)/starR;
+          const r2=rx*rx+ry*ry;
+          if(r2>1){imgD.data[(iy*imgD.width+ix)*4+3]=0;continue;}
+          const mu=Math.sqrt(1-r2);
+          const I=limbDark(mu,u1,u2);
+          const bright=Math.round(I*230+20);
+          const grn=Math.round(I*155+60);
+          imgD.data[(iy*imgD.width+ix)*4+0]=bright;
+          imgD.data[(iy*imgD.width+ix)*4+1]=grn;
+          imgD.data[(iy*imgD.width+ix)*4+2]=Math.round(I*60+10);
+          imgD.data[(iy*imgD.width+ix)*4+3]=255;
+        }
+      }
+      ctx.putImageData(imgD,Math.round(cx2-starR-1),Math.round(cy2+bPx-starR-1));
+
+      // Stellar halo glow
+      const sGrd=ctx.createRadialGradient(cx2,cy2+bPx,starR*0.8,cx2,cy2+bPx,starR*1.6);
+      sGrd.addColorStop(0,'rgba(255,180,60,0)');sGrd.addColorStop(1,'rgba(255,100,20,0)');
+      ctx.beginPath();ctx.arc(cx2,cy2+bPx,starR*1.6,0,Math.PI*2);ctx.fillStyle=sGrd;ctx.fill();
+
+      // Planet shadow on far side (faint)
+      if(!nearSide){
+        ctx.globalAlpha=0.4;
+        ctx.beginPath();ctx.arc(px,py,planetR2,0,Math.PI*2);
+        ctx.fillStyle='rgba(30,60,120,0.5)';ctx.fill();
+        ctx.globalAlpha=1.0;
+      }
+
+      // Planet (near side — draws over star if transiting)
+      if(nearSide){
+        ctx.beginPath();ctx.arc(px,py,planetR2,0,Math.PI*2);
+        ctx.fillStyle='rgba(10,18,40,0.95)';ctx.fill();
+        const pGlow=ctx.createRadialGradient(px,py,planetR2*0.7,px,py,planetR2*1.3);
+        pGlow.addColorStop(0,'rgba(100,150,255,0)');
+        pGlow.addColorStop(1,'rgba(100,150,255,0.18)');
+        ctx.beginPath();ctx.arc(px,py,planetR2*1.3,0,Math.PI*2);ctx.fillStyle=pGlow;ctx.fill();
+        ctx.strokeStyle='rgba(100,160,255,0.5)';ctx.lineWidth=0.8;
+        ctx.beginPath();ctx.arc(px,py,planetR2,0,Math.PI*2);ctx.stroke();
+      }
+
+      // Orbit path
+      ctx.strokeStyle='rgba(100,140,200,0.18)';ctx.lineWidth=0.8;ctx.setLineDash([3,4]);
+      ctx.beginPath();ctx.ellipse(cx2,cy2+bPx,orbitA,orbitB,0,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
+
+      // Transit chord line
+      ctx.strokeStyle='rgba(85,204,136,0.35)';ctx.lineWidth=1;ctx.setLineDash([2,3]);
+      ctx.beginPath();ctx.moveTo(cx2-chordHalf,cy2+bPx);ctx.lineTo(cx2+chordHalf,cy2+bPx);ctx.stroke();ctx.setLineDash([]);
 
       // Impact parameter arrow
-      ctx.strokeStyle='rgba(255,170,68,0.6)';ctx.lineWidth=1;
-      ctx.beginPath();ctx.moveTo(cx2,cy2);ctx.lineTo(cx2,cy2+bPx);ctx.stroke();
-      ctx.fillStyle='rgba(255,170,68,0.8)';ctx.font='9px monospace';ctx.textAlign='left';
+      ctx.strokeStyle='rgba(255,170,68,0.5)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(cx2,cy2+bPx-starR*0.15);ctx.lineTo(cx2,cy2+bPx);ctx.stroke();
+      ctx.fillStyle='rgba(255,170,68,0.7)';ctx.font='9px monospace';ctx.textAlign='left';
       ctx.fillText('b='+b.toFixed(3),cx2+4,cy2+bPx/2+3);
 
-      // Star label
-      ctx.fillStyle='rgba(255,230,150,0.8)';ctx.font='9px sans-serif';ctx.textAlign='center';
-      ctx.fillText('R_s='+rs_Rs.toFixed(2)+'R☉',cx2,cy2+starR+12);
-      ctx.fillText('R_p='+rp_Re.toFixed(1)+'R⊕  k='+k.toFixed(4),cx2,cy2-starR-6);
+      // TRANSIT indicator
+      if(inTransit){
+        ctx.fillStyle='rgba(85,204,136,0.85)';ctx.font='bold 10px monospace';ctx.textAlign='right';
+        ctx.fillText('▶ TRANSIT',W-MR,MT+12);
+      }
+
+      // Labels
+      ctx.fillStyle='rgba(255,230,150,0.7)';ctx.font='9px sans-serif';ctx.textAlign='center';
+      ctx.fillText('R_p='+rp_Re.toFixed(1)+'R⊕  k='+k.toFixed(4),cx2,cy2+bPx-starR-8);
       ctx.fillStyle='rgba(136,153,187,0.8)';ctx.font='9px monospace';
-      ctx.fillText(LANG==='en'?'Transit geometry (side view)':'Geometria tranzitu (pohľad zboku)',cx2,H-MB+14);
+      ctx.fillText(LANG==='en'?'Animated transit (real-time)':'Animovaný tranzit (reálny čas)',cx2,H-MB+14);
+
+      // Mini light curve strip at bottom of geometry view
+      const lcH=32, lcY=MT+ph-lcH, lcPad=ML;
+      const lcW=pw;
+      ctx.fillStyle='rgba(5,10,25,0.7)';ctx.fillRect(lcPad,lcY,lcW,lcH);
+      // Draw pre-computed flux values as small strip
+      const NPTS2=60;
+      const tHalf2=Math.max(T14_h*0.8,0.3);
+      const v_km_s=2*Math.PI*(a_AU*AU_km)/(P_days*86400);
+      ctx.strokeStyle='rgba(77,184,255,0.6)';ctx.lineWidth=1;
+      ctx.beginPath();
+      for(let i=0;i<NPTS2;i++){
+        const t_h=-tHalf2+2*tHalf2*i/(NPTS2-1);
+        const x_proj=t_h*3600*v_km_s;
+        const d_km=Math.sqrt(x_proj**2+(b*rs_km)**2);
+        const dn=d_km/rs_km;
+        const fl=transitFlux(dn,k,u1,u2,30);
+        const flMin=1-(k**2)*1.3;
+        const scX2=lcPad+i/NPTS2*lcW;
+        const scY2=lcY+lcH*(1-(fl-flMin)/(1.001-flMin))*0.85+2;
+        i===0?ctx.moveTo(scX2,scY2):ctx.lineTo(scX2,scY2);
+      }ctx.stroke();
+      // Moving cursor on mini LC
+      const lcPhase=rawPhase; // 0..1
+      const cursorT=(lcPhase>0.5?(lcPhase-1):lcPhase)*P_days*24; // hours from mid
+      if(Math.abs(cursorT)<tHalf2){
+        const cursorX=lcPad+(cursorT+tHalf2)/(2*tHalf2)*lcW;
+        ctx.strokeStyle='rgba(255,220,80,0.8)';ctx.lineWidth=1;
+        ctx.beginPath();ctx.moveTo(cursorX,lcY);ctx.lineTo(cursorX,lcY+lcH);ctx.stroke();
+      }
     }
 
     // ── Metrics ───────────────────────────────────────────────
@@ -7794,7 +7982,161 @@ function updateBinary(){
   requestAnimationFrame(()=>{if(document.getElementById('pane-binary').classList.contains('active'))updateBinary();});
 }
 
+// ─── GALAXY COLLISION ANIMATION ──────────────────────────────────────────────
+let collisionAnimId=null, collisionFrame=0;
+(function(){
+  // Pseudo-random stable star positions for each galaxy
+  function mkRNG(seed){let s=seed^0xDEADBEEF;return()=>{s=Math.imul(1664525,s)+1013904223>>>0;return s/0xFFFFFFFF;};}
+
+  function drawGalaxy(ctx,cx,cy,radius,angle,color,nStars,rng,tidal,tidalDir,alpha){
+    // Draw elliptical galaxy disk with arms & halo
+    ctx.save();
+    ctx.globalAlpha=Math.max(0,Math.min(1,alpha));
+    // Halo glow
+    const hGrd=ctx.createRadialGradient(cx,cy,0,cx,cy,radius*1.4);
+    hGrd.addColorStop(0,color+'44');hGrd.addColorStop(0.5,color+'18');hGrd.addColorStop(1,color+'00');
+    ctx.beginPath();ctx.arc(cx,cy,radius*1.4,0,Math.PI*2);ctx.fillStyle=hGrd;ctx.fill();
+    // Core bulge
+    const cGrd=ctx.createRadialGradient(cx,cy,0,cx,cy,radius*0.35);
+    cGrd.addColorStop(0,'rgba(255,255,220,0.9)');cGrd.addColorStop(0.5,color+'cc');cGrd.addColorStop(1,color+'00');
+    ctx.beginPath();ctx.arc(cx,cy,radius*0.35,0,Math.PI*2);ctx.fillStyle=cGrd;ctx.fill();
+    // Stars in disk (spiral arms approximation)
+    for(let i=0;i<nStars;i++){
+      const r=(0.05+rng()*0.95)*radius;
+      const armAngle=angle+r*0.045+i*2.399; // golden angle spiral
+      const spread=0.18+rng()*0.22;
+      const sx=cx+r*Math.cos(armAngle)+spread*rng()*radius*0.2;
+      const sy=cy+r*Math.sin(armAngle)*0.55+spread*rng()*radius*0.12; // squish to disk
+      const bright=0.1+rng()*0.55*(1-r/radius);
+      const sz=0.5+rng()*1.5;
+      ctx.beginPath();ctx.arc(sx,sy,sz,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${180+Math.round(rng()*75)},${180+Math.round(rng()*55)},${140+Math.round(rng()*80)},${bright})`;
+      ctx.fill();
+    }
+    // Tidal tail stars
+    if(tidal>0.05){
+      const nTidal=Math.round(tidal*80);
+      const tr2=mkRNG(9999);
+      for(let i=0;i<nTidal;i++){
+        const dist=radius*(0.3+tr2()*tidal*1.8);
+        const spread=(tr2()-0.5)*radius*tidal*0.7;
+        const tx=cx+Math.cos(tidalDir)*dist+Math.cos(tidalDir+Math.PI/2)*spread;
+        const ty=cy+Math.sin(tidalDir)*dist*0.55+Math.sin(tidalDir+Math.PI/2)*spread*0.55;
+        const ta=0.05+tr2()*0.3*tidal;
+        ctx.beginPath();ctx.arc(tx,ty,0.7+tr2(),0,Math.PI*2);
+        ctx.fillStyle=`rgba(200,220,255,${ta})`;ctx.fill();
+        // Second tail (opposite)
+        const tx2=cx-Math.cos(tidalDir)*dist*0.6+Math.cos(tidalDir+Math.PI/2)*spread*0.8;
+        const ty2=cy-Math.sin(tidalDir)*dist*0.35+Math.sin(tidalDir+Math.PI/2)*spread*0.8;
+        ctx.beginPath();ctx.arc(tx2,ty2,0.6+tr2()*0.5,0,Math.PI*2);
+        ctx.fillStyle=`rgba(180,200,255,${ta*0.6})`;ctx.fill();
+      }
+    }
+    ctx.restore();
+  }
+
+  function startCollisionAnim(){
+    if(collisionAnimId)return;
+    collisionFrame=0;
+    function loop(){
+      if(!document.getElementById('pane-collision')?.classList.contains('active')){collisionAnimId=null;return;}
+      collisionFrame++;
+      drawCollision();
+      collisionAnimId=requestAnimationFrame(loop);
+    }
+    collisionAnimId=requestAnimationFrame(loop);
+  }
+  window.startCollisionAnim=startCollisionAnim;
+
+  function drawCollision(){
+    const cv=document.getElementById('collision-canvas');if(!cv)return;
+    const W=cv.clientWidth||700,H=cv.clientHeight||260;
+    cv.width=W;cv.height=H;
+    const ctx2=cv.getContext('2d');
+    ctx2.fillStyle='#030610';ctx2.fillRect(0,0,W,H);
+
+    const gvel=parseFloat(document.getElementById('gvel-sl')?.value)||120;
+    const gmass=parseFloat(document.getElementById('gmass-sl')?.value)||100;
+    const gsep=parseFloat(document.getElementById('gsep-sl')?.value)||50;
+    const gphase=(parseFloat(document.getElementById('gphase-sl')?.value)||0)/100;
+
+    // Phase drives the animation position: slider sets "phase" of encounter
+    // Additionally collisionFrame adds a slow auto-advance within the slider's phase bucket
+    const phaseAnim=(gphase + collisionFrame*0.0008)%1;
+
+    const cx=W/2,cy=H/2;
+    const maxSep=Math.min(W*0.36,H*0.36);
+    const R1=Math.min(W,H)*0.16; // MW-like
+    const R2=R1*(0.5+gmass/1000*0.7); // partner
+
+    // Phase 0: far apart → phase 0.5: overlap → phase 1: separated again / merging
+    // Parametric: galaxy 2 approaches from right, passes through, exits left
+    const encounter2=(phaseAnim*2-1); // -1..1
+    const sep=maxSep*Math.abs(encounter2)+R1*0.15; // separation in px
+    const side=encounter2>=0?1:-1;
+
+    const g1x=cx-sep*0.35*side;
+    const g1y=cy+Math.sin(phaseAnim*Math.PI)*H*0.06;
+    const g2x=cx+sep*0.65*side;
+    const g2y=cy-Math.sin(phaseAnim*Math.PI)*H*0.06;
+
+    const dist=Math.sqrt((g2x-g1x)**2+(g2y-g1y)**2);
+    const tidal=Math.max(0,1-dist/(maxSep*1.2))*0.9; // tidal strength
+    const tidalDir=Math.atan2(g2y-g1y,g2x-g1x);
+    const arm1Angle=collisionFrame*0.008;
+
+    const rng1=mkRNG(42),rng2=mkRNG(137);
+
+    // Background inter-galactic stars (disturbed)
+    if(tidal>0.15){
+      const nr=Math.round(tidal*60);
+      const rngB=mkRNG(777+collisionFrame%200);
+      for(let i=0;i<nr;i++){
+        const bx=g1x+(rngB()-0.5)*W*tidal;
+        const by=g1y+(rngB()-0.5)*H*tidal;
+        ctx2.beginPath();ctx2.arc(bx,by,0.5+rngB()*0.8,0,Math.PI*2);
+        ctx2.fillStyle=`rgba(220,230,255,${0.1+rngB()*0.25*tidal})`;ctx2.fill();
+      }
+    }
+
+    drawGalaxy(ctx2,g1x,g1y,R1,arm1Angle,'#4db8ff',120,rng1,tidal,tidalDir+Math.PI,0.9);
+    drawGalaxy(ctx2,g2x,g2y,R2,arm1Angle*-0.7+1.5,'#ffaa44',Math.round(80*gmass/100),rng2,tidal,tidalDir,0.85);
+
+    // Labels
+    const sepKpc=gsep*(1-tidal*0.7+phaseAnim*0.2);
+    ctx2.fillStyle='rgba(77,184,255,0.85)';ctx2.font='10px monospace';ctx2.textAlign='center';
+    ctx2.fillText('Milky Way',g1x,g1y-R1*1.45);
+    ctx2.fillStyle='rgba(255,170,68,0.85)';
+    ctx2.fillText('M31 / partner',g2x,g2y-R2*1.45);
+    ctx2.fillStyle='rgba(136,153,187,0.6)';ctx2.font='9px monospace';
+    const phaseLabels=LANG==='en'
+      ?['Pre-collision','Approaching','First contact','Max. overlap','Separating','2nd approach','Merging']
+      :['Pred zrážkou','Priblíženie','1. kontakt','Max. priechod','Oddelenie','2. priblíženie','Splývanie'];
+    const pIdx=Math.min(6,Math.round(gphase*6));
+    ctx2.fillStyle='rgba(200,215,255,0.8)';ctx2.font='bold 11px monospace';
+    ctx2.fillText('⟨ '+phaseLabels[pIdx]+' ⟩',cx,H-12);
+    ctx2.fillStyle='rgba(136,153,187,0.5)';ctx2.font='9px monospace';
+    ctx2.fillText((LANG==='en'?'Tidal strength: ':'Sila prílivu: ')+(tidal*100).toFixed(0)+'%  |  v='+gvel+' km/s',cx,H-1);
+    if(tidal>0.5){
+      // Star burst indicator
+      ctx2.fillStyle='rgba(255,220,100,0.8)';ctx2.font='9px monospace';ctx2.textAlign='left';
+      ctx2.fillText('✦ '+( LANG==='en'?'Starburst active':'Starburst aktívny'),8,14);
+    }
+  }
+})();
+
 // ─── MAGNETAR / X-RAY PULSAR ─────────────────────────────────────────────────
+let xpAnimId=null, xpFrame=0;
+function startXrayPulsarAnim(){
+  if(xpAnimId)return;
+  function loop(){
+    if(!document.getElementById('pane-xraypulsar')?.classList.contains('active')){xpAnimId=null;return;}
+    xpFrame++;
+    updateXrayPulsar();
+    xpAnimId=requestAnimationFrame(loop);
+  }
+  xpAnimId=requestAnimationFrame(loop);
+}
 function updateXrayPulsar(){
   const xptype=g('xp-type')?g('xp-type').value:'magnetar';
   const P_ms=v('xp-period');
@@ -7906,31 +8248,91 @@ function updateXrayPulsar(){
     for(let i=0;i<=5;i++){const lp=logP_min+(logP_max-logP_min)*i/5;ctx.textAlign='center';ctx.fillText(lp.toFixed(1),scX(lp),MT+ph+14);}
     for(let i=0;i<=7;i++){const lpd=logPd_min+(logPd_max-logPd_min)*i/7;ctx.textAlign='right';ctx.fillText(lpd.toFixed(0),ML-4,scY(lpd)+3);}
   } else if(view==='pulse'){
-    // Pulse profile
+    // Animated pulse profile — beam sweeps, flash synchronized to period P
     const ML=40,MR=20,MT=24,MB=30,pw=W-ML-MR,ph=H-MT-MB;
+    const beamCol=xptype==='magnetar'?'#bb88ff':'#4db8ff';
+
+    // Phase of rotation: xpFrame advances per rAF, P_ms is period in ms
+    // Map to 0..1 phase (animation speed: ~30fps → scale so 1 period = P_ms/33 frames)
+    const framesPerPeriod=Math.max(8, P_ms/33);
+    const phase=(xpFrame % framesPerPeriod)/framesPerPeriod; // 0..1
+
+    // Background grid
     ctx.strokeStyle='rgba(100,140,200,0.12)';ctx.lineWidth=0.5;
     for(let i=0;i<=4;i++){const y=MT+ph*i/4;ctx.beginPath();ctx.moveTo(ML,y);ctx.lineTo(ML+pw,y);ctx.stroke();}
 
-    // Pulse shape depends on type
+    // Draw profile history (scrolling waterfall — last N phases)
     const nComp=xptype==='magnetar'?1:xptype==='msp'?3:2;
-    ctx.strokeStyle=xptype==='magnetar'?'#bb88ff':'#4db8ff';ctx.lineWidth=2;
+    const pulseW=xptype==='msp'?0.03:0.08;
+
+    // Static underlying profile (grey reference)
+    ctx.strokeStyle='rgba(100,130,180,0.3)';ctx.lineWidth=1;
     ctx.beginPath();
     for(let i=0;i<=300;i++){
       const ph2=i/300;
       let flux=0.05;
       for(let c=0;c<nComp;c++){
-        const cen=0.25+(c/(nComp))*0.5;
-        const w=xptype==='msp'?0.03:0.08;
-        flux+=Math.exp(-0.5*((ph2-cen)/w)**2)*(1-c*0.3);
+        const cen=0.25+(c/nComp)*0.5;
+        flux+=Math.exp(-0.5*((ph2-cen)/pulseW)**2)*(1-c*0.3);
       }
       const x=ML+ph2*pw,y=MT+ph*(1-Math.min(flux,1)*0.9);
       i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
     }
     ctx.stroke();
 
+    // Animated bright "now" pulse — Gaussian that sweeps across
+    ctx.strokeStyle=beamCol;ctx.lineWidth=2.5;
+    ctx.beginPath();
+    for(let i=0;i<=300;i++){
+      const ph2=i/300;
+      let flux=0.05;
+      for(let c=0;c<nComp;c++){
+        const cen=0.25+(c/nComp)*0.5;
+        const baseAmp=Math.exp(-0.5*((ph2-cen)/pulseW)**2)*(1-c*0.3);
+        // modulate amplitude with phase — pulse brightens as it "arrives"
+        const phaseDist=Math.abs(((ph2-phase+0.5)%1)-0.5);
+        const sweep=Math.exp(-phaseDist*phaseDist*120)*0.7;
+        flux+=baseAmp*(0.4+sweep);
+      }
+      const x=ML+ph2*pw,y=MT+ph*(1-Math.min(flux,1)*0.9);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+
+    // Moving phase cursor line
+    const curX=ML+phase*pw;
+    ctx.strokeStyle=beamCol+'aa';ctx.lineWidth=1.5;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.moveTo(curX,MT);ctx.lineTo(curX,MT+ph);ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Pulse flash glow at peak — large burst near peak of main component
+    const mainCen=0.25;
+    const distToPeak=Math.abs(((phase-mainCen+0.5)%1)-0.5);
+    const flashStrength=Math.exp(-distToPeak*distToPeak*200);
+    if(flashStrength>0.05){
+      const peakX=ML+mainCen*pw;
+      const peakY=MT+ph*(1-0.9);
+      const glowGrd=ctx.createRadialGradient(peakX,peakY,0,peakX,peakY,60);
+      glowGrd.addColorStop(0,(beamCol+'')+(Math.round(flashStrength*200).toString(16).padStart(2,'0')));
+      glowGrd.addColorStop(1,beamCol+'00');
+      ctx.beginPath();ctx.arc(peakX,peakY,60,0,Math.PI*2);ctx.fillStyle=glowGrd;ctx.fill();
+    }
+
+    // X-ray burst indicator bar (top right)
+    const burstAlpha=Math.max(0,flashStrength);
+    ctx.fillStyle=`rgba(180,100,255,${burstAlpha*0.9})`;
+    ctx.fillRect(W-30,MT,14,ph*flashStrength);
+    ctx.strokeStyle='rgba(150,80,200,0.4)';ctx.strokeRect(W-30,MT,14,ph);
+    ctx.fillStyle='rgba(150,130,200,0.6)';ctx.font='8px monospace';ctx.textAlign='center';
+    ctx.fillText('X',W-23,MT+ph+10);
+
+    // Period & phase labels
     ctx.fillStyle='rgba(136,153,187,0.8)';ctx.font='9px monospace';ctx.textAlign='center';
-    ctx.fillText(LANG==='en'?'Phase':'Fáza',ML+pw/2,MT+ph+22);
-    ctx.fillText((LANG==='en'?'Pulse shape — ':'Tvar pulzu — ')+{magnetar:'Magnetar',xraypsr:'HMXB pulsar',msp:'MSP',cco:'CCO'}[xptype],ML+pw/2,MT-8);
+    ctx.fillText(LANG==='en'?'Rotation phase φ':'Rotačná fáza φ',ML+pw/2,MT+ph+22);
+    const phaseLbl=({magnetar:'Magnetar',xraypsr:'HMXB pulsar',msp:'MSP',cco:'CCO'})[xptype]||xptype;
+    ctx.fillText((LANG==='en'?'Animated pulse — P=':'Animovaný pulz — P=')+P_ms.toFixed(0)+' ms  |  '+phaseLbl,ML+pw/2,MT-8);
+    ctx.fillStyle='rgba(200,215,255,0.5)';ctx.font='9px monospace';ctx.textAlign='left';
+    ctx.fillText('φ='+phase.toFixed(3),ML,MT-8);
   } else {
     // Spin-down energy bar
     const maxE=1e38,Etxt=Edot.toExponential(2);
@@ -7950,6 +8352,17 @@ function updateXrayPulsar(){
 }
 
 // ─── ACCRETION DISK ───────────────────────────────────────────────────────────
+let accAnimId=null, accFrame=0;
+function startAccretionAnim(){
+  if(accAnimId)return;
+  function loop(){
+    if(!document.getElementById('pane-accretion')?.classList.contains('active')){accAnimId=null;return;}
+    accFrame++;
+    updateAccretion();
+    accAnimId=requestAnimationFrame(loop);
+  }
+  accAnimId=requestAnimationFrame(loop);
+}
 function updateAccretion(){
   const mass=v('acc-mass');
   const mDotPct=v('acc-rate');
@@ -8042,25 +8455,82 @@ function updateAccretion(){
     ctx.save();ctx.translate(13,MT+ph/2);ctx.rotate(-Math.PI/2);ctx.fillText('T(r) [K]',0,0);ctx.restore();
     for(let i=0;i<=5;i++){const lri=logRmin+(logRmax-logRmin)*i/5;ctx.textAlign='center';ctx.fillText(lri.toFixed(1),ML+pw*i/5,MT+ph+14);}
   } else if(view==='disk'){
-    // Disk visualization (top view)
+    // Disk visualization — animated rotating rings (top-down view)
     const cx=W/2,cy=H/2;
     const maxR=Math.min(cx,cy)*0.92;
     const rInFrac=risco_rs/routRs;
     const rInPx=maxR*rInFrac;
-    // Color gradient disk
-    const grd=ctx.createRadialGradient(cx,cy,rInPx,cx,cy,maxR);
-    const tcol1=T_at136>1e7?'#ffffff':T_at136>1e6?'#88ccff':T_at136>1e5?'#ffdd88':'#ff8844';
-    grd.addColorStop(0,tcol1+'ff');
-    grd.addColorStop(0.1,'#ff9944cc');
-    grd.addColorStop(0.4,'#ff661188');
-    grd.addColorStop(1,'#44001100');
-    ctx.beginPath();ctx.arc(cx,cy,maxR,0,Math.PI*2);ctx.fillStyle=grd;ctx.fill();
+    const t=accFrame;
+
+    // Background fill
+    ctx.fillStyle='#030610';ctx.fillRect(0,0,W,H);
+
+    // Draw concentric rotating rings from outside inward
+    const nRings=28;
+    for(let ri=nRings;ri>=0;ri--){
+      const frac=ri/nRings; // 0=inner, 1=outer
+      const r=rInPx+(maxR-rInPx)*frac;
+      // Temperature: hotter closer to ISCO
+      const T_ring=T_at136*Math.pow(risco_rs/(risco_rs+frac*(routRs-risco_rs)*0.8),0.75);
+      let ringR,ringG,ringB;
+      if(T_ring>1e7){ringR=255;ringG=255;ringB=255;}
+      else if(T_ring>1e6){ringR=180;ringG=220;ringB=255;}
+      else if(T_ring>1e5){ringR=255;ringG=200;ringB=100;}
+      else if(T_ring>1e4){ringR=255;ringG=120;ringB=40;}
+      else{ringR=180;ringG=40;ringB=10;}
+      const alpha=Math.max(0.08,0.6*(1-frac*0.85));
+      ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);
+      ctx.strokeStyle=`rgba(${ringR},${ringG},${ringB},${alpha})`;
+      ctx.lineWidth=Math.max(1,(maxR-rInPx)/nRings*0.85);
+      ctx.stroke();
+
+      // Rotating hot spots per ring (Keplerian: inner faster)
+      const omega=0.003*Math.pow(risco_rs/Math.max(risco_rs+frac*(routRs-risco_rs),1),1.5);
+      const nSpots=Math.max(1,Math.round(3+frac*3));
+      for(let si=0;si<nSpots;si++){
+        const ang=t*omega + si*(2*Math.PI/nSpots) + frac*1.2;
+        const hx=cx+Math.cos(ang)*r*0.97;
+        const hy=cy+Math.sin(ang)*r*0.30; // squish to disk perspective
+        const spotAlpha=0.5*(1-frac*0.6)*(0.7+0.3*Math.sin(t*0.07+si));
+        ctx.beginPath();ctx.arc(hx,hy,2.5,0,Math.PI*2);
+        ctx.fillStyle=`rgba(255,${Math.round(ringG*0.7)},${Math.round(ringB*0.3)},${spotAlpha})`;
+        ctx.fill();
+      }
+    }
+
+    // Filled disk gradient beneath rings
+    const diskGrd=ctx.createRadialGradient(cx,cy,rInPx,cx,cy,maxR);
+    const tcol1=T_at136>1e7?'255,255,255':T_at136>1e6?'140,200,255':T_at136>1e5?'255,200,80':'255,100,40';
+    diskGrd.addColorStop(0,`rgba(${tcol1},0.22)`);
+    diskGrd.addColorStop(0.25,`rgba(${tcol1},0.10)`);
+    diskGrd.addColorStop(0.7,'rgba(180,60,0,0.06)');
+    diskGrd.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.beginPath();ctx.arc(cx,cy,maxR,0,Math.PI*2);ctx.fillStyle=diskGrd;ctx.fill();
+
+    // Relativistic jets (top & bottom)
+    const jetLen=rInPx*2.8;
+    const jetAlpha=0.35+0.1*Math.sin(t*0.04);
+    [[0,-1],[0,1]].forEach(([dx,dy])=>{
+      const jGrd=ctx.createLinearGradient(cx,cy,cx,cy+dy*jetLen);
+      jGrd.addColorStop(0,`rgba(120,180,255,${jetAlpha})`);
+      jGrd.addColorStop(1,'rgba(120,180,255,0)');
+      ctx.beginPath();ctx.moveTo(cx-rInPx*0.18,cy);ctx.lineTo(cx,cy+dy*jetLen);ctx.lineTo(cx+rInPx*0.18,cy);
+      ctx.fillStyle=jGrd;ctx.fill();
+    });
+
     // Black hole
-    ctx.beginPath();ctx.arc(cx,cy,rInPx*0.8,0,Math.PI*2);ctx.fillStyle='#000';ctx.fill();
-    ctx.strokeStyle='rgba(255,100,60,0.6)';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.arc(cx,cy,rInPx*0.82,0,Math.PI*2);ctx.fillStyle='#000';ctx.fill();
+    // ISCO ring glow
+    const iscoGlow=ctx.createRadialGradient(cx,cy,rInPx*0.75,cx,cy,rInPx*1.3);
+    iscoGlow.addColorStop(0,'rgba(255,100,40,0.0)');
+    iscoGlow.addColorStop(0.5,'rgba(255,100,40,0.35)');
+    iscoGlow.addColorStop(1,'rgba(255,100,40,0)');
+    ctx.beginPath();ctx.arc(cx,cy,rInPx*1.3,0,Math.PI*2);ctx.fillStyle=iscoGlow;ctx.fill();
+    ctx.strokeStyle='rgba(255,80,40,0.7)';ctx.lineWidth=1.5;
     ctx.beginPath();ctx.arc(cx,cy,rInPx,0,Math.PI*2);ctx.stroke();
-    ctx.fillStyle='rgba(220,230,255,0.8)';ctx.font='11px monospace';ctx.textAlign='center';
-    ctx.fillText('r_ISCO = '+risco_rs.toFixed(2)+' r_s',cx,cy+rInPx+16);
+
+    ctx.fillStyle='rgba(220,230,255,0.85)';ctx.font='11px monospace';ctx.textAlign='center';
+    ctx.fillText('r_ISCO = '+risco_rs.toFixed(2)+' r_s',cx,H-28);
     ctx.fillText('T_max ≈ '+T_at136.toExponential(2)+' K',cx,H-14);
   } else {
     // Multicolor BB spectrum
