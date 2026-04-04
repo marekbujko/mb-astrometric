@@ -8819,9 +8819,12 @@ function updateResonance(){
   }
 
   function getMissionDay(now){
-    var ms = now - LAUNCH;
-    if(ms < 0) return -1; // before launch
-    return Math.floor(ms/86400000); // 0-based
+    if(now < LAUNCH) return -1; // before launch
+    var nowDate = now.toISOString().slice(0,10);
+    for(var i=DAYS.length-1; i>=0; i--){
+      if(nowDate >= DAYS[i].date) return i;
+    }
+    return 0;
   }
 
   function drawTimeline(cv, missionDay, lang){
@@ -8950,6 +8953,14 @@ function updateResonance(){
         var pct=(prog*100).toFixed(1);
         if(pbEl) pbEl.style.width=pct+'%';
         if(ppEl) ppEl.textContent=pct;
+      }
+
+      // --- Redraw timeline canvas with current mission day ---
+      var cv=document.getElementById('a2-timeline-cv');
+      if(cv){
+        var lang=typeof LANG!=='undefined'?LANG:'sk';
+        var md=getMissionDay(now);
+        drawTimeline(cv, md, lang);
       }
 
     },1000);
