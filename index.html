@@ -76,7 +76,7 @@ select { font-size: 12px; padding: 4px 8px; border-radius: var(--radius-sm); bor
 <header>
   <div class="header-left">
     <h1><span style="color:#4db8ff;">ASTRO</span><span style="color:#ff4422;">METRIC</span> <span id="main-title-sub" style="font-size:13px;font-weight:400;color:var(--text2);margin-left:6px;" data-sk="v1.0 — Multispektrálny simulátor" data-en="v1.0 — Multispectral simulator">v1.0 — Multispektrálny simulátor</span></h1>
-    <div class="subtitle" id="main-subtitle" data-sk="Fyzikálne javy: Veľkosti objektov · Planétová sústava · Rezonancia dráh · Exoplanéta · Tranzitná fotometria · Životný cyklus hviezdy · Vlastnosti hviezdy · 3D hviezda · Spektrum &amp; Zeeman · Paralaxa · Vzdialenosť · Absorpcia a prach · RR Lyrae · Tully-Fisher · Faber-Jackson · Červený posun · Dilatácia času · Čerenkovovo žiarenie · Gravitačná šošovka · Kompaktné objekty · Magnetar/röntg. pulsar · Akrečný disk · Gravitačné vlny · Pulsar Timing · Disperzná miera (DM) · Fast Radio Burst · Viac-hviezdny systém a problém N telies · Zrážky galaxií · CMB · CMB Power Spectrum · Friedmannove modely · Kozmologická reionizácia" data-en="Physical phenomena: Object sizes · Planetary system · Orbital resonance · Exoplanet · Transit photometry · Stellar life cycle · Stellar properties · 3D star · Spectrum &amp; Zeeman · Parallax · Distance · Absorption &amp; dust · RR Lyrae · Tully-Fisher · Faber-Jackson · Redshift · Time dilation · Cherenkov radiation · Gravitational lensing · Compact objects · Magnetar/X-ray pulsar · Accretion disk · Gravitational waves · Pulsar Timing · Dispersion measure (DM) · Fast Radio Burst · Multi-star system &amp; N-body problem · Galaxy collisions · CMB · CMB Power Spectrum · Friedmann models · Cosmic reionization">Fyzikálne javy: Veľkosti objektov · Planétová sústava · Rezonancia dráh · Exoplanéta · Tranzitná fotometria · Životný cyklus hviezdy · Vlastnosti hviezdy · 3D hviezda · Spektrum &amp; Zeeman · Paralaxa · Vzdialenosť · Absorpcia a prach · RR Lyrae · Tully-Fisher · Faber-Jackson · Červený posun · Dilatácia času · Čerenkovovo žiarenie · Gravitačná šošovka · Kompaktné objekty · Magnetar/röntg. pulsar · Akrečný disk · Gravitačné vlny · Pulsar Timing · Disperzná miera (DM) · Fast Radio Burst · Viac-hviezdny systém a problém N telies · Zrážky galaxií · CMB · CMB Power Spectrum · Friedmannove modely · Kozmologická reionizácia</div>
+    <div class="subtitle" id="main-subtitle" data-sk="Fyzikálne javy: Veľkosti objektov · Planétová sústava · Rezonancia dráh · Exoplanéta · Tranzitná fotometria · Životný cyklus hviezdy · Vlastnosti hviezdy · 3D hviezda · Spektrum &amp; Zeeman · Paralaxa · Vzdialenosť · Absorpcia a prach · RR Lyrae · Tully-Fisher · Faber-Jackson · Červený posun · Dilatácia času · Čerenkovovo žiarenie · Gravitačná šošovka · Kompaktné objekty · Magnetar/röntg. pulsar · Akrečný disk · Gravitačné vlny · Pulsar Timing · Disperzná miera (DM) · Fast Radio Burst · Viac-hviezdny systém a problém N telies · Zrážky galaxií · CMB · CMB Power Spectrum · Friedmannove modely · Kozmologická reionizácia · Artemis II" data-en="Physical phenomena: Object sizes · Planetary system · Orbital resonance · Exoplanet · Transit photometry · Stellar life cycle · Stellar properties · 3D star · Spectrum &amp; Zeeman · Parallax · Distance · Absorption &amp; dust · RR Lyrae · Tully-Fisher · Faber-Jackson · Redshift · Time dilation · Cherenkov radiation · Gravitational lensing · Compact objects · Magnetar/X-ray pulsar · Accretion disk · Gravitational waves · Pulsar Timing · Dispersion measure (DM) · Fast Radio Burst · Multi-star system &amp; N-body problem · Galaxy collisions · CMB · CMB Power Spectrum · Friedmann models · Cosmic reionization · Artemis II">Fyzikálne javy: Veľkosti objektov · Planétová sústava · Rezonancia dráh · Exoplanéta · Tranzitná fotometria · Životný cyklus hviezdy · Vlastnosti hviezdy · 3D hviezda · Spektrum &amp; Zeeman · Paralaxa · Vzdialenosť · Absorpcia a prach · RR Lyrae · Tully-Fisher · Faber-Jackson · Červený posun · Dilatácia času · Čerenkovovo žiarenie · Gravitačná šošovka · Kompaktné objekty · Magnetar/röntg. pulsar · Akrečný disk · Gravitačné vlny · Pulsar Timing · Disperzná miera (DM) · Fast Radio Burst · Viac-hviezdny systém a problém N telies · Zrážky galaxií · CMB · CMB Power Spectrum · Friedmannove modely · Kozmologická reionizácia</div>
   </div>
   <div class="sources">
     <div style="font-size:11px;color:var(--text2);margin-bottom:4px;">
@@ -179,12 +179,22 @@ select { font-size: 12px; padding: 4px 8px; border-radius: var(--radius-sm); bor
     <button class="tab" onclick="setTab('friedmann')" data-sk="🌀 Friedmannove modely" data-en="🌀 Friedmann models">🌀 Friedmannove modely</button>
     <button class="tab" onclick="setTab('reionization')" data-sk="💫 Reionizácia" data-en="💫 Reionization">💫 Reionizácia</button>
   </div>
+  <div class="tab-group">
+    <span class="tab-group-label" data-sk="🚀 Kozmické misie" data-en="🚀 Space missions">🚀 Kozmické misie</span>
+    <button class="tab" onclick="setTab('artemis2')" data-sk="🌙 Artemis II" data-en="🌙 Artemis II">🌙 Artemis II</button>
+  </div>
 </div>
 
 <!-- OVERVIEW -->
 <div class="pane active" id="pane-overview">
   <div class="metrics" id="metrics-all"></div>
   <div class="info" id="info-overview"></div>
+</div>
+
+<!-- ARTEMIS II -->
+<div class="pane" id="pane-artemis2">
+  <div class="sect" id="a2-sect-header">Artemis II — prvý posádkový let okolo Mesiaca od roku 1972 <span class="src-tag">NASA / ESA / CSA · 2026 · živé</span></div>
+  <div id="a2-live-root" style="font-size:13px;"></div>
 </div>
 
 <!-- DISTANCE -->
@@ -3920,6 +3930,8 @@ window.setTab=function(t){
   if(t==='reionization')updateReionization();
   if(t==='binary')      updateBinary();
   if(t==='resonance')   updateResonance();
+  if(t==='artemis2')    { var _lang=typeof LANG!=='undefined'?LANG:'sk'; setTimeout(function(){ if(window.renderArtemis2) window.renderArtemis2(_lang); },50); }
+  else                  { if(window.stopArtemis2Ticker) window.stopArtemis2Ticker(); }
 
   // ── FRB: has its own stop helper ──
   if(t==='frb') updateFRB();
@@ -8740,6 +8752,300 @@ function updateResonance(){
 
 // (new tab routing is handled in the setTab hook above)
 
+// ── Artemis II LIVE dynamic renderer ────────────────────────────
+(function(){
+
+  // ── Mission constants (all times UTC) ──────────────────────────
+  var LAUNCH    = new Date('2026-04-01T22:35:00Z'); // 18:35 EDT = 22:35 UTC
+  var TLI       = new Date('2026-04-02T23:49:00Z'); // 19:49 EDT April 2
+  var FLYBY     = new Date('2026-04-06T17:45:00Z'); // ~13:45 EDT April 6 (record moment)
+  var SPLASHDOWN= new Date('2026-04-11T00:06:00Z'); // 20:06 EDT April 10 = 00:06 UTC April 11
+
+  var MILESTONES = [
+    { utc: new Date('2026-04-01T22:35:00Z'), sk:'🚀 Štart · SLS / Orion z LC-39B', en:'🚀 Launch · SLS/Orion from LC-39B' },
+    { utc: new Date('2026-04-01T23:00:00Z'), sk:'☀ Rozvinutie solárnych panelov Orionu', en:'☀ Orion solar arrays deployed' },
+    { utc: new Date('2026-04-01T23:30:00Z'), sk:'🛸 Oddelenie ICPS · ručná pilotná demonštrácia', en:'🛸 ICPS separation · manual piloting demo' },
+    { utc: new Date('2026-04-02T00:00:00Z'), sk:'🛰 Prechod na Deep Space Network', en:'🛰 Transition to Deep Space Network' },
+    { utc: new Date('2026-04-02T23:49:00Z'), sk:'🔥 TLI burn (~6 min) · opustenie obežnej dráhy Zeme', en:'🔥 TLI burn (~6 min) · leaving Earth orbit' },
+    { utc: new Date('2026-04-03T18:00:00Z'), sk:'📡 OTC-1 zrušená · trajektória presná', en:'📡 OTC-1 cancelled · trajectory precise' },
+    { utc: new Date('2026-04-03T20:00:00Z'), sk:'📶 Test OACIS optickej komunikácie', en:'📶 OACIS optical comms test' },
+    { utc: new Date('2026-04-04T15:35:00Z'), sk:'⏰ D4: Prebudenie 12:35 EDT · prípadné OTC', en:'⏰ D4: Wake-up 12:35 EDT · possible OTC burn' },
+    { utc: new Date('2026-04-05T18:00:00Z'), sk:'🌑 Vstup do gravitačnej sféry Mesiaca', en:'🌑 Entering Moon\'s gravitational sphere' },
+    { utc: new Date('2026-04-06T17:45:00Z'), sk:'🏆 Rekord vzdialenosti od Zeme: 406 773 km (13:45 EDT)', en:'🏆 Distance record from Earth: 406,773 km (13:45 EDT)' },
+    { utc: new Date('2026-04-06T18:30:00Z'), sk:'🌕 Prelet okolo odvrátenej strany Mesiaca · výpadok spojenia ~40 min', en:'🌕 Far side lunar flyby · comms blackout ~40 min' },
+    { utc: new Date('2026-04-07T02:00:00Z'), sk:'🔭 Fotografovanie Mesiaca voľným okom', en:'🔭 Naked-eye Moon photography' },
+    { utc: new Date('2026-04-07T18:00:00Z'), sk:'🔬 ARCHER hlbokovesmírny medicínsky výskum', en:'🔬 ARCHER deep-space medical research' },
+    { utc: new Date('2026-04-09T18:00:00Z'), sk:'🌍 Návrat do gravitačnej sféry Zeme', en:'🌍 Re-entering Earth\'s gravitational sphere' },
+    { utc: new Date('2026-04-10T22:00:00Z'), sk:'🔌 Oddelenie ESM · vstup do atmosféry pri ~40 230 km/h', en:'🔌 ESM separation · reentry at ~40,230 km/h' },
+    { utc: new Date('2026-04-11T00:06:00Z'), sk:'🌊 Splashdown · Tichý oceán pri San Diegu · 20:06 EDT', en:'🌊 Splashdown · Pacific Ocean near San Diego · 20:06 EDT' },
+  ];
+
+  var DAYS = [
+    { date:'2026-04-01', sk:'D1 · 1.apr', en:'D1 · Apr 1', color:'#55cc88', sk2:'Štart 18:35 EDT\nSLS z LC-39B\nICPS sep.', en2:'Launch 18:35 EDT\nSLS from LC-39B\nICPS sep.' },
+    { date:'2026-04-02', sk:'D2 · 2.apr', en:'D2 · Apr 2', color:'#4db8ff', sk2:'TLI burn 19:49 EDT\nOpustenie obežnej\ndráhy Zeme', en2:'TLI burn 19:49 EDT\nLeft Earth orbit' },
+    { date:'2026-04-03', sk:'D3 · 3.apr', en:'D3 · Apr 3', color:'#ffaa44', sk2:'OTC-1 zrušená\nOACIS test\nPríprava kabíny', en2:'OTC-1 cancelled\nOACIS test\nCabin prep' },
+    { date:'2026-04-04', sk:'D4 · 4.apr', en:'D4 · Apr 4', color:'#ffe066', sk2:'Korekčné spaľovania\nPríprava na prelet\nokolo Mesiaca', en2:'Correction burns\nLunar flyby prep' },
+    { date:'2026-04-05', sk:'D5 · 5.apr', en:'D5 · Apr 5', color:'#bb88ff', sk2:'Vstup do grav.\nsféry Mesiaca', en2:'Moon\'s gravity\nsphere entry' },
+    { date:'2026-04-06', sk:'D6 · 6.apr', en:'D6 · Apr 6', color:'#dd88ff', sk2:'PRELET\nOKOLO MESIACA\nRekord 406 773 km', en2:'LUNAR FLYBY\nAround Moon\nRecord 406,773 km' },
+    { date:'2026-04-07', sk:'D7 · 7.apr', en:'D7 · Apr 7', color:'#44ddcc', sk2:'Voľný návrat\nARCHER veda', en2:'Free return\nARCHER science' },
+    { date:'2026-04-08', sk:'D8 · 8.apr', en:'D8 · Apr 8', color:'#44ddcc', sk2:'Návrat k Zemi\nMonitor. systémov', en2:'Return to Earth\nSystems monitoring' },
+    { date:'2026-04-09', sk:'D9 · 9.apr', en:'D9 · Apr 9', color:'#44ddcc', sk2:'Príprava\nna vstup do atm.', en2:'Reentry\npreparation' },
+    { date:'2026-04-10', sk:'D10 · 10.apr', en:'D10 · Apr 10', color:'#ff7055', sk2:'ESM oddelenie\nSplashdown 20:06 EDT\npri San Diegu', en2:'ESM sep.\nSplashdown 20:06 EDT\nnear San Diego' },
+  ];
+
+  var CREW = [
+    { role_sk:'Veliteľ', role_en:'Commander', name:'Reid Wiseman', org:'NASA', icon:'👨‍🚀',
+      rec_sk:'Najstarší cestovateľ za LEO', rec_en:'Oldest traveler beyond LEO' },
+    { role_sk:'Pilot', role_en:'Pilot', name:'Victor Glover', org:'NASA', icon:'👨‍🚀',
+      rec_sk:'Prvý človek farby za LEO', rec_en:'First person of color beyond LEO' },
+    { role_sk:'Špecialistka', role_en:'Mission Specialist', name:'Christina Koch', org:'NASA', icon:'👩‍🚀',
+      rec_sk:'Prvá žena za LEO', rec_en:'First woman beyond LEO' },
+    { role_sk:'Špecialist', role_en:'Mission Specialist', name:'Jeremy Hansen', org:'CSA 🇨🇦', icon:'👨‍🚀',
+      rec_sk:'Prvý non-US občan za LEO', rec_en:'First non-US citizen beyond LEO' },
+  ];
+
+  function pad2(n){ return n<10?'0'+n:String(n); }
+
+  function fmtCountdown(ms, lang){
+    if(ms<=0) return lang==='sk'?'prebehlo':'completed';
+    var s=Math.floor(ms/1000);
+    var d=Math.floor(s/86400); s-=d*86400;
+    var h=Math.floor(s/3600); s-=h*3600;
+    var m=Math.floor(s/60); s-=m*60;
+    var parts=[];
+    if(d>0) parts.push(d+(lang==='sk'?'d':'d'));
+    parts.push(pad2(h)+'h '+pad2(m)+'m '+pad2(s)+'s');
+    return parts.join(' ');
+  }
+
+  function getMissionDay(now){
+    var ms = now - LAUNCH;
+    if(ms < 0) return -1; // before launch
+    return Math.floor(ms/86400000); // 0-based
+  }
+
+  function drawTimeline(cv, missionDay, lang){
+    var W=cv.offsetWidth||800, H=190;
+    cv.width=W; cv.height=H;
+    var ctx=cv.getContext('2d');
+    ctx.clearRect(0,0,W,H);
+    var n=DAYS.length;
+    var margin=24, spacing=(W-margin*2)/n;
+    var lineY=H*0.45;
+
+    // Fill progress
+    if(missionDay>=0){
+      var progX=margin+spacing*(Math.min(missionDay,n-1)+0.5);
+      var g=ctx.createLinearGradient(margin,0,progX,0);
+      g.addColorStop(0,'rgba(85,204,136,0.25)');
+      g.addColorStop(1,'rgba(77,184,255,0.08)');
+      ctx.fillStyle=g;
+      ctx.fillRect(margin,lineY-2,progX-margin,4);
+    }
+
+    ctx.strokeStyle='rgba(100,140,200,0.25)';
+    ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(margin,lineY);ctx.lineTo(W-margin,lineY);ctx.stroke();
+
+    DAYS.forEach(function(day,i){
+      var cx=margin+spacing*(i+0.5);
+      var isToday=(i===missionDay);
+      var isPast=(i<missionDay);
+      var col=day.color;
+
+      ctx.beginPath();ctx.arc(cx,lineY,isToday?9:5.5,0,Math.PI*2);
+      if(isToday){ctx.fillStyle=col+'44';ctx.fill();ctx.strokeStyle=col;ctx.lineWidth=2;ctx.stroke();}
+      else if(isPast){ctx.fillStyle=col+'bb';ctx.fill();}
+      else{ctx.fillStyle='rgba(50,70,110,0.6)';ctx.fill();}
+
+      if(isToday){
+        ctx.beginPath();ctx.arc(cx,lineY,14,0,Math.PI*2);
+        ctx.strokeStyle=col+'33';ctx.lineWidth=1;ctx.stroke();
+      }
+
+      var lbl=(lang==='en'?day.en:day.sk)+(isToday?' ★':'');
+      ctx.fillStyle=isToday?col:(isPast?col+'cc':'rgba(100,120,160,0.6)');
+      ctx.font=(isToday?'bold ':'')+'8px monospace';
+      ctx.textAlign='center';
+      lbl.split('\n').forEach(function(ln,li,arr){
+        ctx.fillText(ln,cx,lineY-13-(arr.length-1-li)*9);
+      });
+
+      var ev=(lang==='en'?day.en2:day.sk2)||'';
+      ctx.fillStyle=isToday?col+'dd':(isPast?'rgba(170,190,220,0.65)':'rgba(70,90,130,0.5)');
+      ctx.font='7px monospace';
+      ev.split('\n').forEach(function(ln,li){ctx.fillText(ln,cx,lineY+16+li*8);});
+    });
+
+    ctx.fillStyle='rgba(80,110,160,0.4)';
+    ctx.font='8px monospace';ctx.textAlign='left';
+    ctx.fillText(lang==='sk'?'Artemis II · 1.–10. apríl 2026 · NASA/CSA  |  ★ = dnes':'Artemis II · Apr 1–10, 2026 · NASA/CSA  |  ★ = today',margin,H-2);
+  }
+
+  // Live countdown ticker
+  var a2Interval=null;
+  function startA2Ticker(){
+    if(a2Interval) clearInterval(a2Interval);
+    a2Interval=setInterval(function(){
+      var now=new Date();
+      var lang=typeof LANG!=='undefined'?LANG:'sk';
+      // Update countdowns in-place if present
+      var cdEl=document.getElementById('a2-countdown');
+      var sdEl=document.getElementById('a2-sd-countdown');
+      var SPLASHDOWN2=new Date('2026-04-11T00:06:00Z');
+      if(cdEl){
+        // find next milestone
+        for(var i=0;i<MILESTONES.length;i++){
+          if(MILESTONES[i].utc>now){cdEl.textContent=fmtCountdown(MILESTONES[i].utc-now,lang);break;}
+        }
+      }
+      if(sdEl){ var ms=SPLASHDOWN2-now; sdEl.textContent=ms>0?fmtCountdown(ms,lang):(lang==='sk'?'Splashdown!':'Splashdown!'); }
+    },1000);
+  }
+
+  function renderA2(lang){
+    var root=document.getElementById('a2-live-root');
+    if(!root) return;
+    var now=new Date();
+    var missionDay=getMissionDay(now);
+
+    // --- Status banner ---
+    var missionElapsed=now-LAUNCH;
+    var elapsedStr='';
+    if(missionElapsed>0){
+      var es=Math.floor(missionElapsed/1000);
+      var ed=Math.floor(es/86400); es-=ed*86400;
+      var eh=Math.floor(es/3600); es-=eh*3600;
+      var em=Math.floor(es/60); es-=em*60;
+      elapsedStr=(lang==='sk'?'MET: ':'MET: ')+ed+'d '+pad2(eh)+'h '+pad2(em)+'m '+pad2(es)+'s';
+    }
+
+    // Next milestone
+    var nextMS=null;
+    for(var i=0;i<MILESTONES.length;i++){
+      if(MILESTONES[i].utc>now){ nextMS=MILESTONES[i]; break; }
+    }
+    var msLabel=nextMS?(lang==='sk'?nextMS.sk:nextMS.en):(lang==='sk'?'🌊 Misia dokončená':'🌊 Mission complete');
+    var msCountdown=nextMS?fmtCountdown(nextMS.utc-now,lang):(lang==='sk'?'prebehlo':'completed');
+
+    // Splashdown countdown
+    var sdMs=SPLASHDOWN-now;
+    var sdStr=sdMs>0?fmtCountdown(sdMs,lang):(lang==='sk'?'Splashdown!':'Splashdown!');
+
+    // Progress 0..1
+    var totalDur=SPLASHDOWN-LAUNCH;
+    var prog=Math.max(0,Math.min(1,(now-LAUNCH)/totalDur));
+    var progPct=(prog*100).toFixed(1);
+
+    // Mission phase label
+    var phaseLabel;
+    if(now<LAUNCH) phaseLabel=lang==='sk'?'Pred štartom':'Pre-launch';
+    else if(now<TLI) phaseLabel=lang==='sk'?'Orbitálna fáza':'Earth orbit phase';
+    else if(now<FLYBY) phaseLabel=lang==='sk'?'Translunar Injection · Cesta k Mesiacu':'Translunar · En route to Moon';
+    else if(now<SPLASHDOWN) phaseLabel=lang==='sk'?'Návrat k Zemi':'Return to Earth';
+    else phaseLabel=lang==='sk'?'Misia dokončená':'Mission complete';
+
+    // Distance estimate (simplified linear approximation)
+    var distStr='';
+    if(missionElapsed>0 && sdMs>0){
+      // Peak distance at flyby ~406,773 km, parabolic-ish
+      var t=Math.max(0,Math.min(1,(now-LAUNCH)/(FLYBY-LAUNCH)));
+      var dist=t<=1?Math.round(t*406773)+'':null;
+      if(now>FLYBY && now<SPLASHDOWN){
+        var t2=Math.max(0,Math.min(1,(now-FLYBY)/(SPLASHDOWN-FLYBY)));
+        dist=Math.round((1-t2)*406773)+'';
+      }
+      if(dist) distStr=(lang==='sk'?'~'+dist+' km od Zeme':'~'+dist+' km from Earth');
+    }
+
+    // --- Build HTML ---
+    var html='';
+
+    // Top status row
+    html+='<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:stretch;margin-bottom:10px;">';
+
+    // Phase card
+    html+='<div style="flex:1;min-width:160px;background:#0d1f12;border:0.5px solid #207040;border-radius:8px;padding:10px 14px;">';
+    html+='<div style="font-size:10px;color:#55cc88;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;">'+(lang==='sk'?'Fáza misie':'Mission phase')+'</div>';
+    html+='<div style="font-size:14px;font-weight:600;color:#88ffaa;">'+phaseLabel+'</div>';
+    if(elapsedStr) html+='<div style="font-size:11px;color:#55cc88;margin-top:3px;font-family:monospace;">'+elapsedStr+'</div>';
+    if(distStr) html+='<div style="font-size:11px;color:#44ddcc;margin-top:2px;">'+distStr+'</div>';
+    html+='</div>';
+
+    // Progress card
+    html+='<div style="flex:1;min-width:160px;background:#111828;border:0.5px solid rgba(100,140,200,0.25);border-radius:8px;padding:10px 14px;">';
+    html+='<div style="font-size:10px;color:#8899bb;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;">'+(lang==='sk'?'Postup misie':'Mission progress')+'</div>';
+    html+='<div style="background:#0a0e1a;border-radius:99px;height:8px;overflow:hidden;margin-bottom:4px;">';
+    html+='<div style="height:100%;width:'+progPct+'%;background:linear-gradient(90deg,#55cc88,#4db8ff);border-radius:99px;transition:width .5s;"></div>';
+    html+='</div>';
+    html+='<div style="font-size:11px;color:#d0daf0;font-family:monospace;">'+progPct+'% &nbsp;·&nbsp; Splashdown: <span id="a2-sd-countdown" style="color:#ff7055;">'+sdStr+'</span></div>';
+    html+='</div>';
+
+    // Next milestone card
+    html+='<div style="flex:2;min-width:200px;background:#1a1228;border:0.5px solid rgba(187,136,255,0.3);border-radius:8px;padding:10px 14px;">';
+    html+='<div style="font-size:10px;color:#bb88ff;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;">'+(lang==='sk'?'Ďalší míľnik':'Next milestone')+'</div>';
+    html+='<div style="font-size:12px;color:#e0d0ff;margin-bottom:3px;">'+msLabel+'</div>';
+    html+='<div style="font-size:13px;font-weight:600;font-family:monospace;color:#ffe066;" id="a2-countdown">'+msCountdown+'</div>';
+    html+='</div>';
+
+    html+='</div>'; // end top row
+
+    // Timeline canvas
+    html+='<canvas id="a2-timeline-cv" style="width:100%;border-radius:8px;display:block;background:#030610;"></canvas>';
+
+    // Milestones list
+    html+='<div style="margin-top:10px;">';
+    html+='<div style="font-size:10px;font-weight:700;color:#8899bb;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;">'+(lang==='sk'?'Priebeh misie':'Mission events')+'</div>';
+    html+='<div style="display:grid;gap:3px;">';
+    MILESTONES.forEach(function(ms){
+      var past=ms.utc<=now;
+      var active=nextMS&&ms===nextMS;
+      var label=lang==='sk'?ms.sk:ms.en;
+      var timeStr=ms.utc.toISOString().replace('T',' ').slice(0,16)+' UTC';
+      var bg=active?'rgba(255,224,102,0.08)':(past?'rgba(85,204,136,0.05)':'rgba(100,140,200,0.04)');
+      var borderColor=active?'rgba(255,224,102,0.4)':(past?'rgba(85,204,136,0.25)':'rgba(100,140,200,0.12)');
+      var labelColor=active?'#ffe066':(past?'#88cc99':'rgba(170,190,220,0.55)');
+      var check=past?'✓ ':'';
+      html+='<div style="display:flex;gap:8px;align-items:baseline;padding:4px 8px;border-radius:5px;background:'+bg+';border:0.5px solid '+borderColor+';">';
+      html+='<span style="font-size:10px;font-family:monospace;color:#556688;white-space:nowrap;min-width:130px;">'+timeStr+'</span>';
+      html+='<span style="font-size:12px;color:'+labelColor+';">'+check+label+'</span>';
+      html+='</div>';
+    });
+    html+='</div></div>';
+
+    // Crew section
+    html+='<div style="margin-top:12px;">';
+    html+='<div style="font-size:10px;font-weight:700;color:#8899bb;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;">'+(lang==='sk'?'Posádka':'Crew')+'</div>';
+    html+='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px;">';
+    CREW.forEach(function(c){
+      html+='<div style="background:#111828;border:0.5px solid rgba(100,140,200,0.2);border-radius:7px;padding:8px 11px;display:flex;gap:8px;align-items:flex-start;">';
+      html+='<span style="font-size:22px;line-height:1;">'+c.icon+'</span>';
+      html+='<div>';
+      html+='<div style="font-size:10px;color:#8899bb;">'+(lang==='sk'?c.role_sk:c.role_en)+' · '+c.org+'</div>';
+      html+='<div style="font-size:13px;font-weight:600;color:#d0daf0;">'+c.name+'</div>';
+      html+='<div style="font-size:10px;color:#4db8ff;margin-top:2px;">'+(lang==='sk'?c.rec_sk:c.rec_en)+'</div>';
+      html+='</div></div>';
+    });
+    html+='</div></div>';
+
+    root.innerHTML=html;
+
+    // Draw timeline canvas
+    var cv=document.getElementById('a2-timeline-cv');
+    if(cv) drawTimeline(cv, missionDay, lang);
+  }
+
+  window.renderArtemis2=function(lang){ renderA2(lang||'sk'); startA2Ticker(); };
+  window.stopArtemis2Ticker=function(){ if(a2Interval){clearInterval(a2Interval);a2Interval=null;} };
+
+})();
+
+function drawArtemis2Canvas(){
+  // legacy stub — real drawing is inside renderArtemis2
+}
+
+
+
 </script>
 
 <script>
@@ -8800,6 +9106,12 @@ function setLang(lang) {
   try {
     var active = document.querySelector('.tab.active');
     if(active){ var fn = active.getAttribute('onclick'); if(fn) eval(fn); }
+  } catch(e){}
+  // Re-render Artemis II if active
+  try {
+    if(document.getElementById('pane-artemis2') && document.getElementById('pane-artemis2').classList.contains('active')){
+      if(window.renderArtemis2) window.renderArtemis2(lang);
+    }
   } catch(e){}
 }
 </script>
