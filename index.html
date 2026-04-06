@@ -27,9 +27,15 @@ header { padding: 14px 24px 10px; border-bottom: 0.5px solid var(--border); disp
 #cw { position: relative; width: 100%; height: 300px; background: #030610; overflow: hidden; }
 canvas#c { display: block; width: 100%; height: 100%; }
 .tabs { display: flex; flex-direction: column; gap: 0; background: var(--bg2); border-bottom: 0.5px solid var(--border); }
-.tab-group { display: flex; align-items: center; gap: 4px; padding: 5px 16px; flex-wrap: wrap; border-top: 0.5px solid var(--border); }
+.tab-group { display: flex; flex-direction: column; border-top: 0.5px solid var(--border); }
 .tab-group:first-child { border-top: none; }
-.tab-group-label { font-size: 10px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .07em; white-space: nowrap; min-width: 120px; padding-right: 6px; flex-shrink: 0; }
+.tab-group-header { display: flex; align-items: center; gap: 6px; padding: 6px 16px; cursor: pointer; user-select: none; }
+.tab-group-header:hover { background: var(--bg3); }
+.tab-group-label { font-size: 10px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .07em; white-space: nowrap; flex: 1; }
+.tab-group-arrow { font-size: 10px; color: var(--text3); transition: transform .2s; flex-shrink: 0; }
+.tab-group.open .tab-group-arrow { transform: rotate(180deg); }
+.tab-group-body { display: none; padding: 4px 16px 8px; flex-wrap: wrap; gap: 4px; }
+.tab-group.open .tab-group-body { display: flex; }
 .tab { font-size: 12px; padding: 4px 12px; border-radius: 99px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; transition: background .15s, color .15s; margin: 2px 0; }
 .tab:hover { background: var(--bg3); }
 .tab.active { background: var(--bg3); color: var(--text); border-color: rgba(100,160,255,0.5); }
@@ -119,69 +125,119 @@ select { font-size: 12px; padding: 4px 8px; border-radius: var(--radius-sm); bor
 </div>
 
 <div class="tabs">
-  <div class="tab-group">
-    <span class="tab-group-label" data-sk="📊 Prehľad" data-en="📊 Overview">📊 Prehľad</span>
-    <button class="tab active" onclick="setTab('overview')" data-sk="📊 Prehľad" data-en="📊 Overview">📊 Prehľad</button>
+  <div class="tab-group open">
+    <div class="tab-group-header" onclick="toggleTabGroup(this)">
+      <span class="tab-group-label" data-sk="📊 Prehľad" data-en="📊 Overview">📊 Prehľad</span>
+      <span class="tab-group-arrow">▼</span>
+    </div>
+    <div class="tab-group-body">
+      <button class="tab active" onclick="setTab('overview')" data-sk="📊 Prehľad" data-en="📊 Overview">📊 Prehľad</button>
+    </div>
   </div>
   <div class="tab-group">
-    <span class="tab-group-label" data-sk="⭐ Hviezdy" data-en="⭐ Stars">⭐ Hviezdy</span>
-    <button class="tab" onclick="setTab('lifecycle')" data-sk="🔁 Životný cyklus" data-en="🔁 Life cycle">🔁 Životný cyklus</button>
-    <button class="tab" onclick="setTab('stellar')" data-sk="⭐ Vlastnosti hviezdy" data-en="⭐ Stellar properties">⭐ Vlastnosti hviezdy</button>
-    <button class="tab" onclick="setTab('star3d')" data-sk="🌐 3D Hviezda" data-en="🌐 3D Star">🌐 3D Hviezda</button>
-    <button class="tab" onclick="setTab('specstar')" data-sk="🌈 Spektrum &amp; Zeeman" data-en="🌈 Spectrum &amp; Zeeman">🌈 Spektrum &amp; Zeeman</button>
+    <div class="tab-group-header" onclick="toggleTabGroup(this)">
+      <span class="tab-group-label" data-sk="⭐ Hviezdy" data-en="⭐ Stars">⭐ Hviezdy</span>
+      <span class="tab-group-arrow">▼</span>
+    </div>
+    <div class="tab-group-body">
+      <button class="tab" onclick="setTab('lifecycle')" data-sk="🔁 Životný cyklus" data-en="🔁 Life cycle">🔁 Životný cyklus</button>
+      <button class="tab" onclick="setTab('stellar')" data-sk="⭐ Vlastnosti hviezdy" data-en="⭐ Stellar properties">⭐ Vlastnosti hviezdy</button>
+      <button class="tab" onclick="setTab('star3d')" data-sk="🌐 3D Hviezda" data-en="🌐 3D Star">🌐 3D Hviezda</button>
+      <button class="tab" onclick="setTab('specstar')" data-sk="🌈 Spektrum &amp; Zeeman" data-en="🌈 Spectrum &amp; Zeeman">🌈 Spektrum &amp; Zeeman</button>
+    </div>
   </div>
   <div class="tab-group">
-    <span class="tab-group-label" data-sk="🌟 Hviezdne systémy" data-en="🌟 Star systems">🌟 Hviezdne systémy</span>
-    <button class="tab" onclick="setTab('binary')" data-sk="🌟 Viac-hviezdny systém" data-en="🌟 Multi-star system">🌟 Viac-hviezdny systém</button>
+    <div class="tab-group-header" onclick="toggleTabGroup(this)">
+      <span class="tab-group-label" data-sk="🌟 Hviezdne systémy" data-en="🌟 Star systems">🌟 Hviezdne systémy</span>
+      <span class="tab-group-arrow">▼</span>
+    </div>
+    <div class="tab-group-body">
+      <button class="tab" onclick="setTab('binary')" data-sk="🌟 Viac-hviezdny systém" data-en="🌟 Multi-star system">🌟 Viac-hviezdny systém</button>
+    </div>
   </div>
   <div class="tab-group">
-    <span class="tab-group-label" data-sk="🪐 Sústavy" data-en="🪐 Systems">🪐 Sústavy</span>
-    <button class="tab" onclick="setTab('sizes')" data-sk="🔬 Veľkosti objektov" data-en="🔬 Object sizes">🔬 Veľkosti objektov</button>
-    <button class="tab" onclick="setTab('planets')" data-sk="🪐 Planétová sústava" data-en="🪐 Planetary system">🪐 Planétová sústava</button>
-    <button class="tab" onclick="setTab('resonance')" data-sk="🔁 Rezonancia dráh" data-en="🔁 Orbital resonance">🔁 Rezonancia dráh</button>
-    <button class="tab" onclick="setTab('exoplanet')" data-sk="🌍 Exoplanéta" data-en="🌍 Exoplanet">🌍 Exoplanéta</button>
-    <button class="tab" onclick="setTab('transit')" data-sk="📉 Tranzitná fotometria" data-en="📉 Transit photometry">📉 Tranzitná fotometria</button>
+    <div class="tab-group-header" onclick="toggleTabGroup(this)">
+      <span class="tab-group-label" data-sk="🪐 Sústavy" data-en="🪐 Systems">🪐 Sústavy</span>
+      <span class="tab-group-arrow">▼</span>
+    </div>
+    <div class="tab-group-body">
+      <button class="tab" onclick="setTab('sizes')" data-sk="🔬 Veľkosti objektov" data-en="🔬 Object sizes">🔬 Veľkosti objektov</button>
+      <button class="tab" onclick="setTab('planets')" data-sk="🪐 Planétová sústava" data-en="🪐 Planetary system">🪐 Planétová sústava</button>
+      <button class="tab" onclick="setTab('resonance')" data-sk="🔁 Rezonancia dráh" data-en="🔁 Orbital resonance">🔁 Rezonancia dráh</button>
+      <button class="tab" onclick="setTab('exoplanet')" data-sk="🌍 Exoplanéta" data-en="🌍 Exoplanet">🌍 Exoplanéta</button>
+      <button class="tab" onclick="setTab('transit')" data-sk="📉 Tranzitná fotometria" data-en="📉 Transit photometry">📉 Tranzitná fotometria</button>
+    </div>
   </div>
   <div class="tab-group">
-    <span class="tab-group-label" data-sk="📏 Vzdialenosti" data-en="📏 Distances">📏 Vzdialenosti</span>
-    <button class="tab" onclick="setTab('parallax')" data-sk="📐 Paralaxa" data-en="📐 Parallax">📐 Paralaxa</button>
-    <button class="tab" onclick="setTab('distance')" data-sk="📏 Vzdialenosť" data-en="📏 Distance">📏 Vzdialenosť</button>
-    <button class="tab" onclick="setTab('absorption')" data-sk="🌫 Absorpcia a prach" data-en="🌫 Absorption &amp; dust">🌫 Absorpcia a prach</button>
-    <button class="tab" onclick="setTab('rrlyrae')" data-sk="⭐ RR Lyrae" data-en="⭐ RR Lyrae">⭐ RR Lyrae</button>
-    <button class="tab" onclick="setTab('tullyfisher')" data-sk="🌀 Tully-Fisher" data-en="🌀 Tully-Fisher">🌀 Tully-Fisher</button>
-    <button class="tab" onclick="setTab('faberjackson')" data-sk="🔵 Faber-Jackson" data-en="🔵 Faber-Jackson">🔵 Faber-Jackson</button>
-    <button class="tab" onclick="setTab('redshift')" data-sk="🔴 Červený posun" data-en="🔴 Redshift">🔴 Červený posun</button>
+    <div class="tab-group-header" onclick="toggleTabGroup(this)">
+      <span class="tab-group-label" data-sk="📏 Vzdialenosti" data-en="📏 Distances">📏 Vzdialenosti</span>
+      <span class="tab-group-arrow">▼</span>
+    </div>
+    <div class="tab-group-body">
+      <button class="tab" onclick="setTab('parallax')" data-sk="📐 Paralaxa" data-en="📐 Parallax">📐 Paralaxa</button>
+      <button class="tab" onclick="setTab('distance')" data-sk="📏 Vzdialenosť" data-en="📏 Distance">📏 Vzdialenosť</button>
+      <button class="tab" onclick="setTab('absorption')" data-sk="🌫 Absorpcia a prach" data-en="🌫 Absorption &amp; dust">🌫 Absorpcia a prach</button>
+      <button class="tab" onclick="setTab('rrlyrae')" data-sk="⭐ RR Lyrae" data-en="⭐ RR Lyrae">⭐ RR Lyrae</button>
+      <button class="tab" onclick="setTab('tullyfisher')" data-sk="🌀 Tully-Fisher" data-en="🌀 Tully-Fisher">🌀 Tully-Fisher</button>
+      <button class="tab" onclick="setTab('faberjackson')" data-sk="🔵 Faber-Jackson" data-en="🔵 Faber-Jackson">🔵 Faber-Jackson</button>
+      <button class="tab" onclick="setTab('redshift')" data-sk="🔴 Červený posun" data-en="🔴 Redshift">🔴 Červený posun</button>
+    </div>
   </div>
   <div class="tab-group">
-    <span class="tab-group-label" data-sk="⚡ Relativita &amp; žiarenie" data-en="⚡ Relativity &amp; radiation">⚡ Relativita &amp; žiarenie</span>
-    <button class="tab" onclick="setTab('timedil')" data-sk="⏱ Dilatácia času" data-en="⏱ Time dilation">⏱ Dilatácia času</button>
-    <button class="tab" onclick="setTab('cherenkov')" data-sk="💠 Čerenkovovo žiarenie" data-en="💠 Cherenkov radiation">💠 Čerenkovovo žiarenie</button>
-    <button class="tab" onclick="setTab('lensing')" data-sk="🔭 Gravitačná šošovka" data-en="🔭 Gravitational lensing">🔭 Gravitačná šošovka</button>
+    <div class="tab-group-header" onclick="toggleTabGroup(this)">
+      <span class="tab-group-label" data-sk="⚡ Relativita &amp; žiarenie" data-en="⚡ Relativity &amp; radiation">⚡ Relativita &amp; žiarenie</span>
+      <span class="tab-group-arrow">▼</span>
+    </div>
+    <div class="tab-group-body">
+      <button class="tab" onclick="setTab('timedil')" data-sk="⏱ Dilatácia času" data-en="⏱ Time dilation">⏱ Dilatácia času</button>
+      <button class="tab" onclick="setTab('cherenkov')" data-sk="💠 Čerenkovovo žiarenie" data-en="💠 Cherenkov radiation">💠 Čerenkovovo žiarenie</button>
+      <button class="tab" onclick="setTab('lensing')" data-sk="🔭 Gravitačná šošovka" data-en="🔭 Gravitational lensing">🔭 Gravitačná šošovka</button>
+    </div>
   </div>
   <div class="tab-group">
-    <span class="tab-group-label" data-sk="⚫ Kompaktné objekty" data-en="⚫ Compact objects">⚫ Kompaktné objekty</span>
-    <button class="tab" onclick="setTab('compact')" data-sk="⚫ Kompaktné objekty" data-en="⚫ Compact objects">⚫ Kompaktné objekty</button>
-    <button class="tab" onclick="setTab('xraypulsar')" data-sk="🧲 Magnetar / röntg. pulsar" data-en="🧲 Magnetar / X-ray pulsar">🧲 Magnetar / röntg. pulsar</button>
-    <button class="tab" onclick="setTab('accretion')" data-sk="🌀 Akrečný disk" data-en="🌀 Accretion disk">🌀 Akrečný disk</button>
-    <button class="tab" onclick="setTab('gravwaves')" data-sk="〰 Gravitačné vlny" data-en="〰 Gravitational waves">〰 Gravitačné vlny</button>
+    <div class="tab-group-header" onclick="toggleTabGroup(this)">
+      <span class="tab-group-label" data-sk="⚫ Kompaktné objekty" data-en="⚫ Compact objects">⚫ Kompaktné objekty</span>
+      <span class="tab-group-arrow">▼</span>
+    </div>
+    <div class="tab-group-body">
+      <button class="tab" onclick="setTab('compact')" data-sk="⚫ Kompaktné objekty" data-en="⚫ Compact objects">⚫ Kompaktné objekty</button>
+      <button class="tab" onclick="setTab('xraypulsar')" data-sk="🧲 Magnetar / röntg. pulsar" data-en="🧲 Magnetar / X-ray pulsar">🧲 Magnetar / röntg. pulsar</button>
+      <button class="tab" onclick="setTab('accretion')" data-sk="🌀 Akrečný disk" data-en="🌀 Accretion disk">🌀 Akrečný disk</button>
+      <button class="tab" onclick="setTab('gravwaves')" data-sk="〰 Gravitačné vlny" data-en="〰 Gravitational waves">〰 Gravitačné vlny</button>
+    </div>
   </div>
   <div class="tab-group">
-    <span class="tab-group-label" data-sk="📡 Rádiová astronómia" data-en="📡 Radio astronomy">📡 Rádiová astronómia</span>
-    <button class="tab" onclick="setTab('pulsar')" data-sk="📡 Pulsar Timing" data-en="📡 Pulsar Timing">📡 Pulsar Timing</button>
-    <button class="tab" onclick="setTab('dm')" data-sk="📶 Disperzná miera" data-en="📶 Dispersion measure">📶 Disperzná miera</button>
-    <button class="tab" onclick="setTab('frb')" data-sk="⚡ Fast Radio Burst" data-en="⚡ Fast Radio Burst">⚡ Fast Radio Burst</button>
+    <div class="tab-group-header" onclick="toggleTabGroup(this)">
+      <span class="tab-group-label" data-sk="📡 Rádiová astronómia" data-en="📡 Radio astronomy">📡 Rádiová astronómia</span>
+      <span class="tab-group-arrow">▼</span>
+    </div>
+    <div class="tab-group-body">
+      <button class="tab" onclick="setTab('pulsar')" data-sk="📡 Pulsar Timing" data-en="📡 Pulsar Timing">📡 Pulsar Timing</button>
+      <button class="tab" onclick="setTab('dm')" data-sk="📶 Disperzná miera" data-en="📶 Dispersion measure">📶 Disperzná miera</button>
+      <button class="tab" onclick="setTab('frb')" data-sk="⚡ Fast Radio Burst" data-en="⚡ Fast Radio Burst">⚡ Fast Radio Burst</button>
+    </div>
   </div>
   <div class="tab-group">
-    <span class="tab-group-label" data-sk="🌌 Kozmológia" data-en="🌌 Cosmology">🌌 Kozmológia</span>
-    <button class="tab" onclick="setTab('collision')" data-sk="💥 Zrážky galaxií" data-en="💥 Galaxy collisions">💥 Zrážky galaxií</button>
-    <button class="tab" onclick="setTab('cmb')" data-sk="🌡 CMB Mapa" data-en="🌡 CMB Map">🌡 CMB Mapa</button>
-    <button class="tab" onclick="setTab('cmbps')" data-sk="📈 CMB Power Spectrum" data-en="📈 CMB Power Spectrum">📈 CMB Power Spectrum</button>
-    <button class="tab" onclick="setTab('friedmann')" data-sk="🌀 Friedmannove modely" data-en="🌀 Friedmann models">🌀 Friedmannove modely</button>
-    <button class="tab" onclick="setTab('reionization')" data-sk="💫 Reionizácia" data-en="💫 Reionization">💫 Reionizácia</button>
+    <div class="tab-group-header" onclick="toggleTabGroup(this)">
+      <span class="tab-group-label" data-sk="🌌 Kozmológia" data-en="🌌 Cosmology">🌌 Kozmológia</span>
+      <span class="tab-group-arrow">▼</span>
+    </div>
+    <div class="tab-group-body">
+      <button class="tab" onclick="setTab('collision')" data-sk="💥 Zrážky galaxií" data-en="💥 Galaxy collisions">💥 Zrážky galaxií</button>
+      <button class="tab" onclick="setTab('cmb')" data-sk="🌡 CMB Mapa" data-en="🌡 CMB Map">🌡 CMB Mapa</button>
+      <button class="tab" onclick="setTab('cmbps')" data-sk="📈 CMB Power Spectrum" data-en="📈 CMB Power Spectrum">📈 CMB Power Spectrum</button>
+      <button class="tab" onclick="setTab('friedmann')" data-sk="🌀 Friedmannove modely" data-en="🌀 Friedmann models">🌀 Friedmannove modely</button>
+      <button class="tab" onclick="setTab('reionization')" data-sk="💫 Reionizácia" data-en="💫 Reionization">💫 Reionizácia</button>
+    </div>
   </div>
   <div class="tab-group">
-    <span class="tab-group-label" data-sk="🚀 Kozmické misie" data-en="🚀 Space missions">🚀 Kozmické misie</span>
-    <button class="tab" onclick="setTab('artemis2')" data-sk="🌙 Artemis II" data-en="🌙 Artemis II">🌙 Artemis II</button>
+    <div class="tab-group-header" onclick="toggleTabGroup(this)">
+      <span class="tab-group-label" data-sk="🚀 Kozmické misie" data-en="🚀 Space missions">🚀 Kozmické misie</span>
+      <span class="tab-group-arrow">▼</span>
+    </div>
+    <div class="tab-group-body">
+      <button class="tab" onclick="setTab('artemis2')" data-sk="🌙 Artemis II" data-en="🌙 Artemis II">🌙 Artemis II</button>
+    </div>
   </div>
 </div>
 
@@ -2788,6 +2844,11 @@ function updateSizes(){
 // Original setTab stub — real implementation is the unified window.setTab below
 function setTab(t){ window.setTab(t); }
 
+function toggleTabGroup(headerEl) {
+  var group = headerEl.parentElement;
+  group.classList.toggle('open');
+}
+
 function selectObj(){
   curObj=g('obj-sel').value;
   const obj=OBJS[curObj];
@@ -3900,6 +3961,15 @@ window.setTab=function(t){
   // --- core tab switch (from original setTab) ---
   document.querySelectorAll('.tab').forEach(el=>el.classList.toggle('active',el.getAttribute('onclick').includes("'"+t+"'")));
   document.querySelectorAll('.pane').forEach(el=>el.classList.toggle('active',el.id==='pane-'+t));
+  // --- auto-open the group that contains the active tab ---
+  var activeTab = document.querySelector('.tab.active');
+  if(activeTab){
+    var body = activeTab.closest('.tab-group-body');
+    if(body){
+      var group = body.parentElement;
+      if(!group.classList.contains('open')) group.classList.add('open');
+    }
+  }
   update();
   if(t==='stellar')updateStellar();
   if(t==='compact')updateCompact();
