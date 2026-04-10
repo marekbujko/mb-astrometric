@@ -8828,8 +8828,8 @@ function updateResonance(){
   // ── Mission constants (all times UTC) ──────────────────────────
   var LAUNCH    = new Date('2026-04-01T22:35:00Z'); // 18:35 EDT = 22:35 UTC
   var TLI       = new Date('2026-04-02T23:49:00Z'); // 19:49 EDT April 2
-  var FLYBY     = new Date('2026-04-06T17:45:00Z'); // ~13:45 EDT April 6 (record moment)
-  var SPLASHDOWN= new Date('2026-04-11T00:06:00Z'); // 20:06 EDT April 10 = 00:06 UTC April 11
+  var FLYBY     = new Date('2026-04-06T23:02:00Z'); // 19:02 EDT April 6 — max distance from Earth
+  var SPLASHDOWN= new Date('2026-04-11T00:07:00Z'); // 20:07 EDT April 10 = 00:07 UTC April 11
 
   var MILESTONES = [
     { utc: new Date('2026-04-01T22:35:00Z'), sk:'🚀 Štart · SLS / Orion z LC-39B', en:'🚀 Launch · SLS/Orion from LC-39B' },
@@ -8841,13 +8841,14 @@ function updateResonance(){
     { utc: new Date('2026-04-03T20:00:00Z'), sk:'📶 Test OACIS optickej komunikácie', en:'📶 OACIS optical comms test' },
     { utc: new Date('2026-04-04T15:35:00Z'), sk:'⏰ D4: Prebudenie 12:35 EDT · prípadné OTC', en:'⏰ D4: Wake-up 12:35 EDT · possible OTC burn' },
     { utc: new Date('2026-04-05T18:00:00Z'), sk:'🌑 Vstup do gravitačnej sféry Mesiaca', en:'🌑 Entering Moon\'s gravitational sphere' },
-    { utc: new Date('2026-04-06T17:45:00Z'), sk:'🏆 Rekord vzdialenosti od Zeme: 406 773 km (13:45 EDT)', en:'🏆 Distance record from Earth: 406,773 km (13:45 EDT)' },
+    { utc: new Date('2026-04-06T17:56:00Z'), sk:'🏆 Prekonanie rekordu Apollo 13 · 400 171 km od Zeme (13:56 EDT)', en:'🏆 Apollo 13 record broken · 400,171 km from Earth (1:56 PM EDT)' },
+    { utc: new Date('2026-04-06T23:02:00Z'), sk:'🏆 Maximum vzdialenosti od Zeme: 406 771 km (19:02 EDT)', en:'🏆 Maximum distance from Earth: 406,771 km (7:02 PM EDT)' },
     { utc: new Date('2026-04-06T18:30:00Z'), sk:'🌕 Prelet okolo odvrátenej strany Mesiaca · výpadok spojenia ~40 min', en:'🌕 Far side lunar flyby · comms blackout ~40 min' },
     { utc: new Date('2026-04-07T02:00:00Z'), sk:'🔭 Fotografovanie Mesiaca voľným okom', en:'🔭 Naked-eye Moon photography' },
     { utc: new Date('2026-04-07T18:00:00Z'), sk:'🔬 ARCHER hlbokovesmírny medicínsky výskum', en:'🔬 ARCHER deep-space medical research' },
     { utc: new Date('2026-04-09T18:00:00Z'), sk:'🌍 Návrat do gravitačnej sféry Zeme', en:'🌍 Re-entering Earth\'s gravitational sphere' },
     { utc: new Date('2026-04-10T22:00:00Z'), sk:'🔌 Oddelenie ESM · vstup do atmosféry pri ~40 230 km/h', en:'🔌 ESM separation · reentry at ~40,230 km/h' },
-    { utc: new Date('2026-04-11T00:06:00Z'), sk:'🌊 Splashdown · Tichý oceán pri San Diegu · 20:06 EDT', en:'🌊 Splashdown · Pacific Ocean near San Diego · 20:06 EDT' },
+    { utc: new Date('2026-04-11T00:07:00Z'), sk:'🌊 Splashdown · Tichý oceán pri San Diegu · 20:07 EDT', en:'🌊 Splashdown · Pacific Ocean near San Diego · 20:07 EDT' },
   ];
 
   var DAYS = [
@@ -8856,11 +8857,11 @@ function updateResonance(){
     { date:'2026-04-03', sk:'D3 · 3.apr', en:'D3 · Apr 3', color:'#ffaa44', sk2:'OTC-1 zrušená\nOACIS test\nPríprava kabíny', en2:'OTC-1 cancelled\nOACIS test\nCabin prep' },
     { date:'2026-04-04', sk:'D4 · 4.apr', en:'D4 · Apr 4', color:'#ffe066', sk2:'Korekčné spaľovania\nPríprava na prelet\nokolo Mesiaca', en2:'Correction burns\nLunar flyby prep' },
     { date:'2026-04-05', sk:'D5 · 5.apr', en:'D5 · Apr 5', color:'#bb88ff', sk2:'Vstup do grav.\nsféry Mesiaca', en2:'Moon\'s gravity\nsphere entry' },
-    { date:'2026-04-06', sk:'D6 · 6.apr', en:'D6 · Apr 6', color:'#dd88ff', sk2:'PRELET\nOKOLO MESIACA\nRekord 406 773 km', en2:'LUNAR FLYBY\nAround Moon\nRecord 406,773 km' },
+    { date:'2026-04-06', sk:'D6 · 6.apr', en:'D6 · Apr 6', color:'#dd88ff', sk2:'PRELET\nOKOLO MESIACA\nRekord 406 771 km', en2:'LUNAR FLYBY\nAround Moon\nRecord 406,771 km' },
     { date:'2026-04-07', sk:'D7 · 7.apr', en:'D7 · Apr 7', color:'#44ddcc', sk2:'Voľný návrat\nARCHER veda', en2:'Free return\nARCHER science' },
     { date:'2026-04-08', sk:'D8 · 8.apr', en:'D8 · Apr 8', color:'#44ddcc', sk2:'Návrat k Zemi\nMonitor. systémov', en2:'Return to Earth\nSystems monitoring' },
     { date:'2026-04-09', sk:'D9 · 9.apr', en:'D9 · Apr 9', color:'#44ddcc', sk2:'Príprava\nna vstup do atm.', en2:'Reentry\npreparation' },
-    { date:'2026-04-10', sk:'D10 · 10.apr', en:'D10 · Apr 10', color:'#ff7055', sk2:'ESM oddelenie\nSplashdown 20:06 EDT\npri San Diegu', en2:'ESM sep.\nSplashdown 20:06 EDT\nnear San Diego' },
+    { date:'2026-04-10', sk:'D10 · 10.apr', en:'D10 · Apr 10', color:'#ff7055', sk2:'ESM oddelenie\nSplashdown 20:07 EDT\npri San Diegu', en2:'ESM sep.\nSplashdown 20:07 EDT\nnear San Diego' },
   ];
 
   var CREW = [
@@ -9083,10 +9084,10 @@ function updateResonance(){
     if(missionElapsed>0 && sdMs>0){
       // Peak distance at flyby ~406,773 km, parabolic-ish
       var t=Math.max(0,Math.min(1,(now-LAUNCH)/(FLYBY-LAUNCH)));
-      var dist=t<=1?Math.round(t*406773)+'':null;
+      var dist=t<=1?Math.round(t*406771)+'':null;
       if(now>FLYBY && now<SPLASHDOWN){
         var t2=Math.max(0,Math.min(1,(now-FLYBY)/(SPLASHDOWN-FLYBY)));
-        dist=Math.round((1-t2)*406773)+'';
+        dist=Math.round((1-t2)*406771)+'';
       }
       if(dist) distStr=(lang==='sk'?'~'+dist+' km od Zeme':'~'+dist+' km from Earth');
     }
