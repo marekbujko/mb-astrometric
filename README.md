@@ -1,4 +1,6 @@
 # AstroMetric - Multispectral Simulator
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/license/mit/)
+[![GitHub stars](https://img.shields.io/github/stars/marekbujko/mb-astrometric?style=social)](https://github.com/marekbujko/mb-astrometric/stargazers)
 
 AstroMetric is a comprehensive astro-simulation sandbox
 covering: astrophysics, observational methods and cosmology.
